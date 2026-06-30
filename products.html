@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shop — StepHaven</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+
+<!-- ============ NAVBAR ============ -->
+<nav class="navbar navbar-expand-lg sticky-top sh-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="index.html">Step<span class="dot">Haven</span></a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
+      <i class="bi bi-list fs-2"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="mainNav">
+      <ul class="navbar-nav mx-auto">
+        <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+        <li class="nav-item"><a class="nav-link active" href="products.html">Shop</a></li>
+        <li class="nav-item"><a class="nav-link" href="products.html?category=Limited Edition">Categories</a></li>
+        <li class="nav-item"><a class="nav-link" href="inventory.html">Inventory</a></li>
+      </ul>
+      <div class="d-flex align-items-center gap-2 mt-3 mt-lg-0">
+        <button class="nav-icon-btn theme-toggle"><i class="bi bi-moon-stars"></i></button>
+        <a href="cart.html" class="nav-icon-btn position-relative">
+          <i class="bi bi-bag"></i>
+          <span class="badge-count cart-badge">0</span>
+        </a>
+        <a href="login.html" class="btn btn-outline-ink btn-sm ms-1">Login</a>
+        <a href="register.html" class="btn btn-leather btn-sm">Register</a>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<div class="container section">
+  <div class="section-head">
+    <div>
+      <span class="eyebrow">Koleksi Lengkap</span>
+      <h2>Semua Produk</h2>
+    </div>
+    <div class="d-flex align-items-center gap-3">
+      <span id="resultCount" class="text-muted small"></span>
+      <select id="sortSelect" class="form-select form-select-sm" style="width:auto;">
+        <option value="newest">Terbaru</option>
+        <option value="bestseller">Terlaris</option>
+        <option value="price-asc">Harga Termurah</option>
+        <option value="price-desc">Harga Tertinggi</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <!-- ============ FILTER SIDEBAR ============ -->
+    <div class="col-lg-3">
+      <div class="filter-box mb-3">
+        <h6>Cari Produk</h6>
+        <div class="input-group">
+          <span class="input-group-text bg-transparent"><i class="bi bi-search"></i></span>
+          <input type="text" id="searchInput" class="form-control" placeholder="Nama, brand, kategori...">
+        </div>
+      </div>
+
+      <div class="filter-box mb-3">
+        <h6>Kategori</h6>
+        <div class="form-check mb-2"><input class="form-check-input" type="radio" name="cat" value="all" id="catAll" data-category-filter checked><label class="form-check-label" for="catAll">Semua Kategori</label></div>
+        <div class="form-check mb-2"><input class="form-check-input" type="radio" name="cat" value="Sneakers" id="catSneakers" data-category-filter><label class="form-check-label" for="catSneakers">Sneakers</label></div>
+        <div class="form-check mb-2"><input class="form-check-input" type="radio" name="cat" value="Running" id="catRunning" data-category-filter><label class="form-check-label" for="catRunning">Running</label></div>
+        <div class="form-check mb-2"><input class="form-check-input" type="radio" name="cat" value="Casual" id="catCasual" data-category-filter><label class="form-check-label" for="catCasual">Casual</label></div>
+        <div class="form-check mb-2"><input class="form-check-input" type="radio" name="cat" value="Sport" id="catSport" data-category-filter><label class="form-check-label" for="catSport">Sport</label></div>
+        <div class="form-check mb-2"><input class="form-check-input" type="radio" name="cat" value="Formal" id="catFormal" data-category-filter><label class="form-check-label" for="catFormal">Formal</label></div>
+        <div class="form-check"><input class="form-check-input" type="radio" name="cat" value="Limited Edition" id="catLimited" data-category-filter><label class="form-check-label" for="catLimited">Limited Edition</label></div>
+      </div>
+
+      <div class="filter-box mb-3">
+        <h6>Ukuran</h6>
+        <div>
+          <span class="size-box" data-size="38">38</span>
+          <span class="size-box" data-size="39">39</span>
+          <span class="size-box" data-size="40">40</span>
+          <span class="size-box" data-size="41">41</span>
+          <span class="size-box" data-size="42">42</span>
+          <span class="size-box" data-size="43">43</span>
+          <span class="size-box" data-size="44">44</span>
+        </div>
+      </div>
+
+      <div class="filter-box mb-3">
+        <h6>Harga Maksimal</h6>
+        <input type="range" class="form-range" id="priceRange" min="200000" max="3000000" step="50000" value="3000000">
+        <div class="text-muted small">Hingga <span id="priceRangeLabel">Rp3.000.000</span></div>
+      </div>
+
+      <button id="resetFilters" class="btn btn-outline-ink w-100"><i class="bi bi-arrow-counterclockwise me-1"></i>Reset Filter</button>
+    </div>
+
+    <!-- ============ PRODUCT GRID ============ -->
+    <div class="col-lg-9">
+      <div class="row g-4" id="productGrid"></div>
+
+      <div id="emptyState" class="empty-state d-none">
+        <i class="bi bi-emoji-frown"></i>
+        <h4>Produk tidak ditemukan</h4>
+        <p class="text-muted">Coba ubah kata kunci pencarian atau filter yang digunakan.</p>
+      </div>
+
+      <nav class="mt-5" aria-label="Page navigation">
+        <ul class="pagination justify-content-center" id="pagination"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+
+<!-- ============ FOOTER ============ -->
+<footer class="sh-footer">
+  <div class="container">
+    <div class="row g-4">
+      <div class="col-lg-4">
+        <a class="navbar-brand mb-3 d-inline-block" href="index.html">Step<span class="dot">Haven</span></a>
+        <p class="text-muted small">Toko sepatu online terpercaya dengan koleksi modern untuk setiap gaya hidup.</p>
+      </div>
+      <div class="col-6 col-lg-2">
+        <h6>Belanja</h6>
+        <a href="products.html">Semua Produk</a>
+        <a href="cart.html">Keranjang</a>
+      </div>
+      <div class="col-6 col-lg-2">
+        <h6>Akun</h6>
+        <a href="login.html">Login</a>
+        <a href="register.html">Daftar</a>
+      </div>
+      <div class="col-lg-4">
+        <h6>Kontak</h6>
+        <p class="text-muted small"><i class="bi bi-geo-alt me-2"></i>Surabaya, Jawa Timur, Indonesia</p>
+      </div>
+    </div>
+    <div class="footer-bottom text-center">&copy; 2026 StepHaven. Proyek tugas frontend.</div>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+<script src="js/app.js"></script>
+<script src="js/products.js"></script>
+</body>
+</html>

@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Inventory — StepHaven Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg sticky-top sh-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="index.html">Step<span class="dot">Haven</span></a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
+      <i class="bi bi-list fs-2"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="mainNav">
+      <ul class="navbar-nav mx-auto">
+        <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+        <li class="nav-item"><a class="nav-link" href="products.html">Shop</a></li>
+        <li class="nav-item"><a class="nav-link active" href="inventory.html">Inventory</a></li>
+      </ul>
+      <div class="d-flex align-items-center gap-2 mt-3 mt-lg-0">
+        <button class="nav-icon-btn theme-toggle"><i class="bi bi-moon-stars"></i></button>
+        <a href="cart.html" class="nav-icon-btn position-relative">
+          <i class="bi bi-bag"></i>
+          <span class="badge-count cart-badge">0</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<div class="container section">
+  <div class="section-head">
+    <div>
+      <span class="eyebrow">Admin Dashboard</span>
+      <h2>Manajemen Inventory</h2>
+    </div>
+    <button class="btn btn-leather" id="addProductBtn"><i class="bi bi-plus-lg me-1"></i>Tambah Produk</button>
+  </div>
+
+  <!-- ============ SUMMARY CARDS ============ -->
+  <div class="row g-3 mb-5">
+    <div class="col-6 col-lg-3">
+      <div class="summary-card">
+        <div class="icon-box" style="background:rgba(181,86,45,0.12); color:var(--color-leather);"><i class="bi bi-boxes"></i></div>
+        <div><div class="value" id="sumTotalStock">0</div><div class="label">Total Stok</div></div>
+      </div>
+    </div>
+    <div class="col-6 col-lg-3">
+      <div class="summary-card">
+        <div class="icon-box" style="background:rgba(107,113,86,0.14); color:var(--color-olive);"><i class="bi bi-bag-check"></i></div>
+        <div><div class="value" id="sumTotalProducts">0</div><div class="label">Jumlah Produk</div></div>
+      </div>
+    </div>
+    <div class="col-6 col-lg-3">
+      <div class="summary-card">
+        <div class="icon-box" style="background:rgba(179,58,58,0.12); color:var(--color-danger);"><i class="bi bi-exclamation-triangle"></i></div>
+        <div><div class="value" id="sumOutOfStock">0</div><div class="label">Stok Habis</div></div>
+      </div>
+    </div>
+    <div class="col-6 col-lg-3">
+      <div class="summary-card">
+        <div class="icon-box" style="background:rgba(201,168,92,0.18); color:#8a6d24;"><i class="bi bi-star"></i></div>
+        <div><div class="value" id="sumBestseller" style="font-size:1.05rem;">-</div><div class="label">Produk Terlaris</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ TABLE FILTERS ============ -->
+  <div class="d-flex flex-wrap gap-3 mb-3">
+    <div class="input-group" style="max-width:280px;">
+      <span class="input-group-text bg-transparent"><i class="bi bi-search"></i></span>
+      <input type="text" id="invSearch" class="form-control" placeholder="Cari ID, nama, brand...">
+    </div>
+    <select id="invCategoryFilter" class="form-select" style="max-width:200px;">
+      <option value="all">Semua Kategori</option>
+      <option value="Sneakers">Sneakers</option>
+      <option value="Running">Running</option>
+      <option value="Casual">Casual</option>
+      <option value="Sport">Sport</option>
+      <option value="Formal">Formal</option>
+      <option value="Limited Edition">Limited Edition</option>
+    </select>
+  </div>
+
+  <!-- ============ TABLE ============ -->
+  <div class="table-responsive filter-box p-0">
+    <table class="table align-middle mb-0">
+      <thead style="background:var(--color-sand);">
+        <tr>
+          <th>Gambar</th>
+          <th>ID</th>
+          <th>Nama</th>
+          <th>Brand</th>
+          <th>Kategori</th>
+          <th>Harga</th>
+          <th>Stok</th>
+          <th>Status</th>
+          <th>Aksi</th>
+        </tr>
+      </thead>
+      <tbody id="inventoryTableBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ============ ADD/EDIT PRODUCT MODAL ============ -->
+<div class="modal fade" id="productModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="productModalLabel">Tambah Produk Baru</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form id="productForm" novalidate>
+        <div class="modal-body">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Nama Produk</label>
+              <input type="text" class="form-control" name="name" required>
+              <div class="invalid-feedback">Nama produk wajib diisi.</div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Brand</label>
+              <input type="text" class="form-control" name="brand" required>
+              <div class="invalid-feedback">Brand wajib diisi.</div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Kategori</label>
+              <select class="form-select" name="category" required>
+                <option value="Sneakers">Sneakers</option>
+                <option value="Running">Running</option>
+                <option value="Casual">Casual</option>
+                <option value="Sport">Sport</option>
+                <option value="Formal">Formal</option>
+                <option value="Limited Edition">Limited Edition</option>
+              </select>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Harga (Rp)</label>
+              <input type="number" class="form-control" name="price" min="10000" required>
+              <div class="invalid-feedback">Masukkan harga valid.</div>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Diskon (%)</label>
+              <input type="number" class="form-control" name="discount" min="0" max="90" value="0">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Jumlah Stok</label>
+              <input type="number" class="form-control" name="stock" min="0" required>
+              <div class="invalid-feedback">Masukkan jumlah stok.</div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Ukuran Tersedia (pisahkan koma)</label>
+              <input type="text" class="form-control" name="sizes" placeholder="39,40,41,42">
+            </div>
+            <div class="col-12">
+              <label class="form-label">URL Gambar</label>
+              <input type="url" class="form-control" name="img" placeholder="https://...">
+            </div>
+            <div class="col-12">
+              <label class="form-label">Deskripsi</label>
+              <textarea class="form-control" name="desc" rows="3" required></textarea>
+              <div class="invalid-feedback">Deskripsi wajib diisi.</div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-ink" data-bs-dismiss="modal">Batal</button>
+          <button type="submit" class="btn btn-leather">Simpan Produk</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<footer class="sh-footer">
+  <div class="container">
+    <div class="footer-bottom text-center">&copy; 2026 StepHaven. Proyek tugas frontend.</div>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+<script src="js/app.js"></script>
+<script src="js/inventory.js"></script>
+</body>
+</html>

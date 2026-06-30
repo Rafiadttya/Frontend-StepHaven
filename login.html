@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login — StepHaven</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg sh-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="index.html">Step<span class="dot">Haven</span></a>
+    <button class="nav-icon-btn theme-toggle"><i class="bi bi-moon-stars"></i></button>
+  </div>
+</nav>
+
+<div class="container auth-wrap">
+  <div class="auth-card mx-auto" style="max-width:960px;">
+    <div class="row g-0">
+      <div class="col-lg-5 auth-side">
+        <span class="eyebrow" style="color:var(--color-gold)">Selamat Datang</span>
+        <h2 class="my-3">Masuk ke akun StepHaven kamu</h2>
+        <p style="opacity:0.75">Lacak pesanan, simpan wishlist, dan nikmati checkout lebih cepat.</p>
+        <div class="stamp mt-4" style="border-color:var(--color-gold); color:var(--color-gold);">MEMBER<br>SINCE 2018</div>
+      </div>
+      <div class="col-lg-7">
+        <div class="p-5">
+          <h3 class="mb-4">Login</h3>
+          <form id="loginForm" class="needs-validation" novalidate>
+            <div class="mb-3">
+              <label class="form-label">Email</label>
+              <input type="email" class="form-control" name="email" required>
+              <div class="invalid-feedback">Masukkan alamat email yang valid.</div>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Password</label>
+              <div class="input-group">
+                <input type="password" class="form-control" name="password" id="loginPassword" minlength="6" required>
+                <button class="btn btn-toggle-pass" type="button" id="togglePassword"><i class="bi bi-eye"></i></button>
+                <div class="invalid-feedback">Password minimal 6 karakter.</div>
+              </div>
+            </div>
+            <div class="d-flex justify-content-between align-items-center mb-4">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="rememberMe">
+                <label class="form-check-label small" for="rememberMe">Ingat saya</label>
+              </div>
+              <a href="#" class="small" data-bs-toggle="modal" data-bs-target="#forgotModal">Lupa password?</a>
+            </div>
+            <button type="submit" class="btn btn-leather w-100 btn-lg mb-3">Masuk</button>
+
+            <div class="text-center text-muted small mb-3">atau masuk dengan</div>
+            <div class="d-flex gap-2 mb-4">
+              <button type="button" class="btn btn-outline-ink flex-grow-1"><i class="bi bi-google me-1"></i>Google</button>
+              <button type="button" class="btn btn-outline-ink flex-grow-1"><i class="bi bi-facebook me-1"></i>Facebook</button>
+            </div>
+            <p class="text-center small mb-0">Belum punya akun? <a href="register.html" class="fw-semibold">Daftar di sini</a></p>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Forgot password modal -->
+<div class="modal fade" id="forgotModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Reset Password</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p class="text-muted small">Masukkan email kamu, kami akan mengirimkan tautan reset password.</p>
+        <input type="email" class="form-control" placeholder="Alamat email">
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-leather w-100" id="sendResetBtn">Kirim Tautan Reset</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+<script src="js/app.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  // Show / hide password
+  document.getElementById('togglePassword').addEventListener('click', function(){
+    const input = document.getElementById('loginPassword');
+    const icon = this.querySelector('i');
+    if(input.type === 'password'){ input.type = 'text'; icon.className = 'bi bi-eye-slash'; }
+    else{ input.type = 'password'; icon.className = 'bi bi-eye'; }
+  });
+
+  // Form validation + fake login
+  const form = document.getElementById('loginForm');
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if(!form.checkValidity()){
+      form.classList.add('was-validated');
+      return;
+    }
+    localStorage.setItem(StepHaven.KEYS.USER, JSON.stringify({ email: form.email.value }));
+    StepHaven.showToast('Login berhasil! Mengalihkan...', 'success');
+    setTimeout(() => location.href = 'index.html', 1000);
+  });
+
+  document.getElementById('sendResetBtn').addEventListener('click', () => {
+    StepHaven.showToast('Tautan reset password telah dikirim (demo)', 'info');
+    bootstrap.Modal.getInstance(document.getElementById('forgotModal')).hide();
+  });
+});
+</script>
+</body>
+</html>

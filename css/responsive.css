@@ -1,0 +1,55 @@
+/* =========================================================
+   STEPHAVEN — RESPONSIVE STYLESHEET
+   Breakpoints: Mobile 320px / Tablet 768px / Laptop 1024px / Desktop 1440px
+   ========================================================= */
+
+/* ---------- DESKTOP LARGE (>=1440px) ---------- */
+@media (min-width: 1440px){
+  .container{ max-width: 1320px; }
+  .hero h1{ font-size: 4.6rem; }
+}
+
+/* ---------- LAPTOP (1024px - 1439px) ---------- */
+@media (max-width: 1439px){
+  .hero-shoe-outline{ font-size: 22rem; }
+}
+
+/* ---------- TABLET (768px - 1023px) ---------- */
+@media (max-width: 1023px){
+  .section{ padding: var(--space-5) 0; }
+  .hero{ padding: var(--space-6) 0 var(--space-5); text-align:center; }
+  .hero .lead-text{ margin-left:auto; margin-right:auto; }
+  .hero-shoe-outline{ display:none; }
+  .summary-box{ position: static; margin-top: var(--space-4); }
+  .auth-side{ display:none; }
+}
+
+/* ---------- MOBILE (max 767px) ---------- */
+@media (max-width: 767px){
+  .hero h1{ font-size: 2.4rem; }
+  .section-head{ flex-direction:column; align-items:flex-start; }
+  .filter-box{ margin-bottom: var(--space-4); }
+  .newsletter-section{ padding: var(--space-5) var(--space-3); text-align:center; }
+  .newsletter-section form{ flex-direction:column; }
+  .newsletter-section input{ border-radius: var(--radius-sm) !important; margin-bottom:8px; }
+  .newsletter-section .btn-leather{ border-radius: var(--radius-sm) !important; width:100%; }
+  .cart-item{ flex-wrap:wrap; }
+  .cart-item img{ width:70px; height:70px; }
+  .stamp{ width:64px; height:64px; font-size:0.52rem; }
+  .gallery-thumb{ width:58px; height:58px; }
+  #scrollTopBtn{ bottom:18px; right:18px; width:42px; height:42px; }
+  .toast-stack{ right: 12px; left:12px; bottom: 14px; }
+  .toast-stack .toast{ width: 100%; }
+}
+
+/* ---------- MOBILE SMALL (max 380px, e.g. 320px target) ---------- */
+@media (max-width: 380px){
+  .hero h1{ font-size: 1.9rem; }
+  .product-card .name{ font-size: 0.96rem; }
+  .summary-card{ flex-direction:column; text-align:center; }
+}
+
+/* ---------- PRINT (invoice) ---------- */
+@media print{
+  .sh-navbar, .sh-footer, #scrollTopBtn, .no-print{ display:none !important; }
+}

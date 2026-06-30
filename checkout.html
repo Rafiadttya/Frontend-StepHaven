@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Checkout — StepHaven</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg sticky-top sh-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="index.html">Step<span class="dot">Haven</span></a>
+    <div class="d-flex align-items-center gap-2">
+      <button class="nav-icon-btn theme-toggle"><i class="bi bi-moon-stars"></i></button>
+      <a href="cart.html" class="nav-icon-btn position-relative">
+        <i class="bi bi-bag"></i>
+        <span class="badge-count cart-badge">0</span>
+      </a>
+    </div>
+  </div>
+</nav>
+
+<div class="container section">
+  <span class="eyebrow">Langkah 2 dari 2</span>
+  <h2 class="mb-5">Checkout</h2>
+
+  <!-- ============ CHECKOUT FORM VIEW ============ -->
+  <div id="checkoutFormView" class="row g-5">
+    <div class="col-lg-7">
+      <form id="checkoutForm" class="needs-validation" novalidate>
+        <h5 class="mb-3">Data Pelanggan</h5>
+        <div class="row g-3 mb-4">
+          <div class="col-md-6">
+            <label class="form-label">Nama Lengkap</label>
+            <input type="text" class="form-control" name="fullname" required>
+            <div class="invalid-feedback">Nama wajib diisi.</div>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Email</label>
+            <input type="email" class="form-control" name="email" required>
+            <div class="invalid-feedback">Masukkan email yang valid.</div>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">No. Telepon</label>
+            <input type="tel" class="form-control" name="phone" pattern="[0-9]{9,14}" required>
+            <div class="invalid-feedback">Masukkan nomor telepon valid (9-14 digit).</div>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Kode Pos</label>
+            <input type="text" class="form-control" name="postal" required>
+            <div class="invalid-feedback">Kode pos wajib diisi.</div>
+          </div>
+        </div>
+
+        <h5 class="mb-3">Alamat Pengiriman</h5>
+        <div class="mb-4">
+          <label class="form-label">Alamat Lengkap</label>
+          <textarea class="form-control" name="address" rows="3" required></textarea>
+          <div class="invalid-feedback">Alamat wajib diisi.</div>
+        </div>
+
+        <h5 class="mb-3">Metode Pembayaran</h5>
+        <div class="mb-4">
+          <div class="form-check filter-box mb-2 p-3">
+            <input class="form-check-input" type="radio" name="payment" id="payTransfer" value="Transfer Bank" checked>
+            <label class="form-check-label" for="payTransfer"><i class="bi bi-bank me-2"></i>Transfer Bank</label>
+          </div>
+          <div class="form-check filter-box mb-2 p-3">
+            <input class="form-check-input" type="radio" name="payment" id="payEwallet" value="E-Wallet">
+            <label class="form-check-label" for="payEwallet"><i class="bi bi-wallet2 me-2"></i>E-Wallet (OVO/GoPay/DANA)</label>
+          </div>
+          <div class="form-check filter-box p-3">
+            <input class="form-check-input" type="radio" name="payment" id="payCod" value="COD">
+            <label class="form-check-label" for="payCod"><i class="bi bi-cash-coin me-2"></i>Bayar di Tempat (COD)</label>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-leather btn-lg w-100">Konfirmasi Pesanan <i class="bi bi-check2-circle ms-1"></i></button>
+      </form>
+    </div>
+
+    <div class="col-lg-5">
+      <div class="summary-box">
+        <h5 class="mb-3">Ringkasan Pesanan</h5>
+        <div id="checkoutItemsList" class="mb-3"></div>
+        <hr>
+        <div class="row-line"><span>Subtotal</span><span id="coSubtotal">Rp0</span></div>
+        <div class="row-line"><span>Pajak (8%)</span><span id="coTax">Rp0</span></div>
+        <div class="row-line"><span>Ongkos Kirim</span><span id="coShipping">Rp0</span></div>
+        <hr>
+        <div class="row-line fw-bold fs-5"><span>Total</span><span id="coTotal" class="font-mono">Rp0</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ INVOICE VIEW (shown after confirm) ============ -->
+  <div id="invoiceView" class="d-none">
+    <div class="filter-box mx-auto" style="max-width:680px;">
+      <div class="text-center mb-4">
+        <i class="bi bi-check-circle-fill text-success" style="font-size:3rem;"></i>
+        <h3 class="mt-3">Pesanan Berhasil Dibuat!</h3>
+        <p class="text-muted">Invoice <span class="font-mono" id="invNumber"></span></p>
+      </div>
+      <div class="divider-dashed"></div>
+      <div class="row mb-3">
+        <div class="col-6"><strong>Nama:</strong> <span id="invName"></span></div>
+        <div class="col-6"><strong>Email:</strong> <span id="invEmail"></span></div>
+        <div class="col-12 mt-2"><strong>Alamat:</strong> <span id="invAddress"></span></div>
+        <div class="col-6 mt-2"><strong>Pembayaran:</strong> <span id="invPayment"></span></div>
+        <div class="col-6 mt-2"><strong>Tanggal:</strong> <span id="invDate"></span></div>
+      </div>
+      <div class="divider-dashed"></div>
+      <div id="invItemsList" class="mb-3"></div>
+      <div class="row-line fw-bold fs-5"><span>Total Dibayar</span><span id="invTotal" class="font-mono"></span></div>
+      <div class="d-flex gap-3 mt-4 no-print">
+        <button class="btn btn-outline-ink flex-grow-1" onclick="window.print()"><i class="bi bi-printer me-1"></i>Cetak Invoice</button>
+        <a href="index.html" class="btn btn-leather flex-grow-1">Kembali ke Beranda</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer class="sh-footer no-print">
+  <div class="container">
+    <div class="footer-bottom text-center">&copy; 2026 StepHaven. Proyek tugas frontend.</div>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+<script src="js/app.js"></script>
+<script>
+/* =========================================================
+   Checkout page logic (inline — page-specific, not reused
+   elsewhere so it isn't placed in a shared js/ file).
+   ========================================================= */
+document.addEventListener('DOMContentLoaded', () => {
+  const cart = StepHaven.getCart();
+  const listEl = document.getElementById('checkoutItemsList');
+
+  if(cart.length === 0){
+    document.getElementById('checkoutFormView').innerHTML =
+      `<div class="empty-state mx-auto"><i class="bi bi-bag-x"></i><h4>Keranjang kosong</h4>
+       <p class="text-muted">Tambahkan produk sebelum checkout.</p>
+       <a href="products.html" class="btn btn-leather mt-2">Belanja Sekarang</a></div>`;
+    return;
+  }
+
+  let subtotal = 0;
+  listEl.innerHTML = cart.map(item => {
+    const p = StepHaven.getProductById(item.id);
+    if(!p) return '';
+    const price = p.discount > 0 ? Math.round(p.price * (1 - p.discount/100)) : p.price;
+    subtotal += price * item.qty;
+    return `<div class="d-flex justify-content-between small mb-2">
+      <span>${p.name} ${item.size ? '(' + item.size + ')' : ''} x${item.qty}</span>
+      <span class="font-mono">${StepHaven.formatRupiah(price * item.qty)}</span>
+    </div>`;
+  }).join('');
+
+  const tax = Math.round(subtotal * 0.08);
+  const shipping = 25000;
+  const total = subtotal + tax + shipping;
+
+  document.getElementById('coSubtotal').textContent = StepHaven.formatRupiah(subtotal);
+  document.getElementById('coTax').textContent = StepHaven.formatRupiah(tax);
+  document.getElementById('coShipping').textContent = StepHaven.formatRupiah(shipping);
+  document.getElementById('coTotal').textContent = StepHaven.formatRupiah(total);
+
+  const form = document.getElementById('checkoutForm');
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if(!form.checkValidity()){
+      form.classList.add('was-validated');
+      StepHaven.showToast('Lengkapi semua data yang wajib diisi', 'danger');
+      return;
+    }
+
+    // Build invoice
+    const payment = form.querySelector('input[name="payment"]:checked').value;
+    document.getElementById('invNumber').textContent = 'INV-' + Date.now().toString().slice(-8);
+    document.getElementById('invName').textContent = form.fullname.value;
+    document.getElementById('invEmail').textContent = form.email.value;
+    document.getElementById('invAddress').textContent = form.address.value + ', ' + form.postal.value;
+    document.getElementById('invPayment').textContent = payment;
+    document.getElementById('invDate').textContent = new Date().toLocaleDateString('id-ID', { year:'numeric', month:'long', day:'numeric' });
+    document.getElementById('invItemsList').innerHTML = listEl.innerHTML;
+    document.getElementById('invTotal').textContent = StepHaven.formatRupiah(total);
+
+    document.getElementById('checkoutFormView').classList.add('d-none');
+    document.getElementById('invoiceView').classList.remove('d-none');
+
+    // Clear cart after successful order
+    StepHaven.saveCart([]);
+    StepHaven.showToast('Pesanan berhasil dikonfirmasi!', 'success');
+    window.scrollTo({ top:0, behavior:'smooth' });
+  });
+});
+</script>
+</body>
+</html>

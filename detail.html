@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Detail Produk — StepHaven</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+
+<!-- ============ NAVBAR ============ -->
+<nav class="navbar navbar-expand-lg sticky-top sh-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="index.html">Step<span class="dot">Haven</span></a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
+      <i class="bi bi-list fs-2"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="mainNav">
+      <ul class="navbar-nav mx-auto">
+        <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+        <li class="nav-item"><a class="nav-link active" href="products.html">Shop</a></li>
+        <li class="nav-item"><a class="nav-link" href="inventory.html">Inventory</a></li>
+      </ul>
+      <div class="d-flex align-items-center gap-2 mt-3 mt-lg-0">
+        <button class="nav-icon-btn theme-toggle"><i class="bi bi-moon-stars"></i></button>
+        <a href="cart.html" class="nav-icon-btn position-relative">
+          <i class="bi bi-bag"></i>
+          <span class="badge-count cart-badge">0</span>
+        </a>
+        <a href="login.html" class="btn btn-outline-ink btn-sm ms-1">Login</a>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<div class="container section" id="detailWrap">
+  <nav aria-label="breadcrumb" class="mb-4">
+    <ol class="breadcrumb small">
+      <li class="breadcrumb-item"><a href="index.html">Home</a></li>
+      <li class="breadcrumb-item"><a href="products.html">Shop</a></li>
+      <li class="breadcrumb-item active" id="detailBrand">Produk</li>
+    </ol>
+  </nav>
+
+  <div class="row g-5">
+    <!-- ============ GALLERY ============ -->
+    <div class="col-lg-6">
+      <div class="gallery-main">
+        <img id="mainImage" src="" alt="Foto produk">
+      </div>
+      <div class="d-flex gap-2" id="galleryThumbs"></div>
+    </div>
+
+    <!-- ============ PRODUCT INFO ============ -->
+    <div class="col-lg-6">
+      <span class="eyebrow" id="detailBrandLabel"><span id="detailBrand2"></span></span>
+      <h1 class="my-2" id="detailName" style="font-size:2rem;"></h1>
+      <div id="detailStars" class="stars mb-3"></div>
+
+      <div class="d-flex align-items-center gap-3 mb-3">
+        <span class="price-now font-mono fs-3 fw-bold" id="detailPriceNow"></span>
+        <span class="price-old font-mono d-none" id="detailPriceOld"></span>
+        <span class="badge-limited d-none" id="detailDiscountBadge"></span>
+      </div>
+
+      <p class="text-muted" id="detailDesc"></p>
+
+      <div class="mb-3" id="detailStock"></div>
+
+      <div class="mb-3">
+        <h6 class="font-mono small text-uppercase">Pilih Ukuran</h6>
+        <div id="sizeOptions"></div>
+      </div>
+
+      <div class="mb-4">
+        <h6 class="font-mono small text-uppercase">Pilih Warna</h6>
+        <div id="colorOptions"></div>
+      </div>
+
+      <div class="d-flex align-items-center gap-3 mb-4">
+        <span class="fw-semibold">Jumlah</span>
+        <div class="qty-control">
+          <button id="qtyMinus" type="button">-</button>
+          <input type="text" id="qtyInput" readonly value="1">
+          <button id="qtyPlus" type="button">+</button>
+        </div>
+      </div>
+
+      <div class="d-flex gap-3 flex-wrap">
+        <button id="addToCartBtn" class="btn btn-outline-ink btn-lg flex-grow-1"><i class="bi bi-bag-plus me-1"></i>Tambah Keranjang</button>
+        <button id="buyNowBtn" class="btn btn-leather btn-lg flex-grow-1"><i class="bi bi-lightning-charge me-1"></i>Beli Sekarang</button>
+        <button id="detailFavBtn" class="btn btn-outline-ink btn-lg"><i class="bi bi-heart me-1"></i>Favorit</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ REVIEWS ============ -->
+  <div class="divider-dashed"></div>
+  <h3 class="mb-4">Ulasan Pelanggan</h3>
+  <div class="row g-4 mb-4">
+    <div class="col-md-4">
+      <div class="testimonial-card">
+        <div class="stars mb-2">★★★★★</div>
+        <p class="mb-2">Bahan nyaman dipakai seharian, ukurannya pas sesuai chart.</p>
+        <strong class="small">— Andi K.</strong>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="testimonial-card">
+        <div class="stars mb-2">★★★★☆</div>
+        <p class="mb-2">Pengiriman cepat, packing rapi. Warna sesuai foto.</p>
+        <strong class="small">— Putri S.</strong>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="testimonial-card">
+        <div class="stars mb-2">★★★★★</div>
+        <p class="mb-2">Kualitas premium, worth the price. Bakal beli lagi.</p>
+        <strong class="small">— Hendra W.</strong>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ RELATED PRODUCTS ============ -->
+  <div class="divider-dashed"></div>
+  <h3 class="mb-4">Produk Terkait</h3>
+  <div class="row g-4" id="relatedProducts"></div>
+</div>
+
+<!-- ============ FOOTER ============ -->
+<footer class="sh-footer">
+  <div class="container">
+    <div class="footer-bottom text-center">&copy; 2026 StepHaven. Proyek tugas frontend.</div>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+<script src="js/app.js"></script>
+<script src="js/products.js"></script>
+<script>
+  // Mirror brand into breadcrumb label too
+  document.addEventListener('DOMContentLoaded', () => {
+    const obs = new MutationObserver(() => {
+      document.getElementById('detailBrand2').textContent = document.getElementById('detailBrand').textContent;
+    });
+    obs.observe(document.getElementById('detailBrand'), { childList:true });
+  });
+</script>
+</body>
+</html>
