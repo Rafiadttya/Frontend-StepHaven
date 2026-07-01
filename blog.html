@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Blog — StepHaven</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+
+<!-- ============ NAVBAR ============ -->
+<nav class="navbar navbar-expand-lg sticky-top sh-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="index.html">Step<span class="dot">Haven</span></a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
+      <i class="bi bi-list fs-2"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="mainNav">
+      <ul class="navbar-nav mx-auto">
+        <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+        <li class="nav-item"><a class="nav-link" href="products.html">Shop</a></li>
+        <li class="nav-item"><a class="nav-link" href="inventory.html">Inventory</a></li>
+        <li class="nav-item"><a class="nav-link" href="wishlist.html">Wishlist</a></li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle active" href="#" role="button" data-bs-toggle="dropdown">More</a>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item active" href="blog.html">Blog</a></li>
+            <li><a class="dropdown-item" href="career.html">Career</a></li>
+            <li><a class="dropdown-item" href="size-guide.html">Size Guide</a></li>
+            <li><a class="dropdown-item" href="about.html">About Us</a></li>
+          </ul>
+        </li>
+      </ul>
+      <div class="d-flex align-items-center gap-2 mt-3 mt-lg-0">
+        <a href="wishlist.html" class="nav-icon-btn position-relative"><i class="bi bi-heart"></i><span class="badge-count wishlist-badge">0</span></a>
+        <a href="cart.html" class="nav-icon-btn position-relative">
+          <i class="bi bi-bag"></i>
+          <span class="badge-count cart-badge">0</span>
+        </a>
+        <a href="login.html" class="btn btn-outline-ink btn-sm ms-1">Login</a>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- ============ HEADER ============ -->
+<header class="section pb-0">
+  <div class="container text-center">
+    <span class="eyebrow justify-content-center">StepHaven Journal</span>
+    <h1 class="my-3" style="font-size:2.6rem;">Blog &amp; Inspirasi Sepatu</h1>
+    <p class="lead-text mx-auto">Tips fashion, panduan merawat sepatu, dan tren sneaker terbaru — semuanya dari tim StepHaven.</p>
+  </div>
+</header>
+
+<!-- ============ FEATURED ARTICLE ============ -->
+<section class="section">
+  <div class="container">
+    <div class="row g-4 align-items-center reveal">
+      <div class="col-lg-6">
+        <img src="https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=900&q=80" class="img-fluid rounded-4" alt="Tren sneaker terbaru 2026">
+      </div>
+      <div class="col-lg-6">
+        <span class="badge-limited mb-2 d-inline-block">Trending</span>
+        <h2>5 Tren Sneaker yang Akan Mendominasi 2026</h2>
+        <p class="text-muted">Dari siluet chunky yang kembali populer hingga material daur ulang, simak arah baru dunia sneaker tahun ini dan bagaimana memadupadankannya dengan gaya sehari-hari.</p>
+        <span class="text-muted small"><i class="bi bi-calendar3 me-1"></i>28 Juni 2026 · 6 menit baca</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ARTICLE GRID ============ -->
+<section class="section pt-0">
+  <div class="container">
+    <div class="section-head reveal">
+      <div>
+        <span class="eyebrow">Artikel Terbaru</span>
+        <h2>Semua Tulisan</h2>
+      </div>
+    </div>
+    <div class="row g-4">
+
+      <div class="col-md-6 col-lg-4">
+        <div class="product-card reveal h-100">
+          <div class="img-wrap"><img src="https://images.unsplash.com/photo-1549298916-b41d501d3772?w=600&q=80" alt="Tips merawat sepatu kulit"></div>
+          <div class="body">
+            <span class="brand">Perawatan</span>
+            <h3 class="name">Cara Merawat Sepatu Kulit Agar Awet Bertahun-tahun</h3>
+            <p class="text-muted small mb-2">Pelajari teknik membersihkan, menyimpan, dan merawat permukaan kulit agar sepatu favoritmu tetap tampil prima.</p>
+            <span class="text-muted small"><i class="bi bi-calendar3 me-1"></i>24 Juni 2026</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-6 col-lg-4">
+        <div class="product-card reveal h-100">
+          <div class="img-wrap"><img src="https://images.unsplash.com/photo-1460353581641-37baddab0fa2?w=600&q=80" alt="Padu padan sneakers"></div>
+          <div class="body">
+            <span class="brand">Fashion Tips</span>
+            <h3 class="name">5 Cara Padu Padan Sneakers Putih untuk Segala Outfit</h3>
+            <p class="text-muted small mb-2">Sneakers putih adalah item wajib. Simak kombinasi outfit kasual hingga semi-formal yang tetap stylish.</p>
+            <span class="text-muted small"><i class="bi bi-calendar3 me-1"></i>20 Juni 2026</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-6 col-lg-4">
+        <div class="product-card reveal h-100">
+          <div class="img-wrap"><img src="https://images.unsplash.com/photo-1465453869711-7e174808ace9?w=600&q=80" alt="Memilih sepatu lari"></div>
+          <div class="body">
+            <span class="brand">Panduan</span>
+            <h3 class="name">Cara Memilih Sepatu Lari Sesuai Bentuk Telapak Kaki</h3>
+            <p class="text-muted small mb-2">Pronasi, supinasi, atau netral? Kenali jenis telapak kakimu agar performa lari lebih maksimal.</p>
+            <span class="text-muted small"><i class="bi bi-calendar3 me-1"></i>15 Juni 2026</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-6 col-lg-4">
+        <div class="product-card reveal h-100">
+          <div class="img-wrap"><img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600&q=80" alt="Sejarah sneaker culture"></div>
+          <div class="body">
+            <span class="brand">Edukasi</span>
+            <h3 class="name">Mengenal Sejarah Sneaker Culture dari Masa ke Masa</h3>
+            <p class="text-muted small mb-2">Bagaimana sepatu olahraga berevolusi menjadi simbol gaya hidup global yang kita kenal sekarang.</p>
+            <span class="text-muted small"><i class="bi bi-calendar3 me-1"></i>10 Juni 2026</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-6 col-lg-4">
+        <div class="product-card reveal h-100">
+          <div class="img-wrap"><img src="https://images.unsplash.com/photo-1606813907291-d86efa9b94db?w=600&q=80" alt="Tips menyimpan sepatu"></div>
+          <div class="body">
+            <span class="brand">Perawatan</span>
+            <h3 class="name">Tips Menyimpan Koleksi Sepatu Agar Tidak Bau dan Lembap</h3>
+            <p class="text-muted small mb-2">Gunakan silica gel, rak terbuka, dan rotasi pemakaian untuk menjaga koleksi sepatumu tetap segar.</p>
+            <span class="text-muted small"><i class="bi bi-calendar3 me-1"></i>5 Juni 2026</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-6 col-lg-4">
+        <div class="product-card reveal h-100">
+          <div class="img-wrap"><img src="https://images.unsplash.com/photo-1518002171953-a080ee817e1f?w=600&q=80" alt="Sepatu untuk gym"></div>
+          <div class="body">
+            <span class="brand">Olahraga</span>
+            <h3 class="name">Pentingnya Memilih Sepatu Khusus untuk Latihan Beban</h3>
+            <p class="text-muted small mb-2">Stabilitas sol datar dan grip yang kuat membantu performa angkat beban lebih aman dan optimal.</p>
+            <span class="text-muted small"><i class="bi bi-calendar3 me-1"></i>1 Juni 2026</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer class="sh-footer">
+  <div class="container">
+    <div class="row g-4">
+      <div class="col-lg-4">
+        <a class="navbar-brand mb-3 d-inline-block" href="index.html">Step<span class="dot">Haven</span></a>
+        <p class="text-muted small">Toko sepatu online terpercaya dengan koleksi modern untuk setiap gaya hidup.</p>
+      </div>
+      <div class="col-6 col-lg-2">
+        <h6>Belanja</h6>
+        <a href="products.html">Semua Produk</a>
+        <a href="cart.html">Keranjang</a>
+        <a href="wishlist.html">Wishlist</a>
+      </div>
+      <div class="col-6 col-lg-2">
+        <h6>Perusahaan</h6>
+        <a href="about.html">About Us</a>
+        <a href="career.html">Career</a>
+        <a href="blog.html">Blog</a>
+        <a href="size-guide.html">Size Guide</a>
+      </div>
+      <div class="col-lg-4">
+        <h6>Kontak</h6>
+        <p class="text-muted small"><i class="bi bi-geo-alt me-2"></i>Surabaya, Jawa Timur, Indonesia</p>
+      </div>
+    </div>
+    <div class="footer-bottom text-center">&copy; 2026 StepHaven. Proyek tugas frontend.</div>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

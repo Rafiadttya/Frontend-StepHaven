@@ -286,9 +286,17 @@ StepHaven.Products = {
     document.getElementById('detailDesc').textContent = product.desc;
     document.getElementById('mainImage').src = product.img;
 
-    // Gallery thumbnails
+    // Gallery thumbnails — use new images[] array if available, fallback to img/img2
     const thumbs = document.getElementById('galleryThumbs');
-    const images = [product.img, product.img2].filter(Boolean);
+    let images = [];
+    if(product.images && product.images.length){
+      images = product.images.filter(Boolean);
+    } else {
+      images = [product.img, product.img2].filter(Boolean);
+    }
+    // Deduplicate
+    images = [...new Set(images)];
+
     thumbs.innerHTML = images.map((img, i) => `
       <div class="gallery-thumb ${i===0?'active':''}" data-img="${img}">
         <img src="${img}" alt="thumbnail ${i+1}">

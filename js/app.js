@@ -21,7 +21,6 @@ const StepHaven = {
     PRODUCTS: 'sh_products',
     CART: 'sh_cart',
     WISHLIST: 'sh_wishlist',
-    THEME: 'sh_theme',
     USER: 'sh_user',
     RECENT: 'sh_recent_viewed'
   },
@@ -150,27 +149,6 @@ const StepHaven = {
     });
   },
 
-  /* -------------------- UI: DARK MODE -------------------- */
-  initTheme(){
-    const saved = localStorage.getItem(this.KEYS.THEME) || 'light';
-    document.documentElement.setAttribute('data-theme', saved);
-    document.querySelectorAll('.theme-toggle i').forEach(icon => {
-      icon.className = saved === 'dark' ? 'bi bi-sun' : 'bi bi-moon-stars';
-    });
-    document.querySelectorAll('.theme-toggle').forEach(btn => {
-      btn.addEventListener('click', () => this.toggleTheme());
-    });
-  },
-  toggleTheme(){
-    const current = document.documentElement.getAttribute('data-theme');
-    const next = current === 'dark' ? 'light' : 'dark';
-    document.documentElement.setAttribute('data-theme', next);
-    localStorage.setItem(this.KEYS.THEME, next);
-    document.querySelectorAll('.theme-toggle i').forEach(icon => {
-      icon.className = next === 'dark' ? 'bi bi-sun' : 'bi bi-moon-stars';
-    });
-  },
-
   /* -------------------- UI: TOAST -------------------- */
   showToast(message, type='info'){
     let stack = document.querySelector('.toast-stack');
@@ -256,7 +234,6 @@ const StepHaven = {
   init(){
     this.getProducts(); // ensure seeded
     this.initNavbar();
-    this.initTheme();
     this.initScrollTop();
     this.initNewsletter();
     this.updateCartBadge();

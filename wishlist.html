@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Keranjang Belanja — StepHaven</title>
+<title>Wishlist — StepHaven</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet">
@@ -13,6 +13,7 @@
 </head>
 <body>
 
+<!-- ============ NAVBAR ============ -->
 <nav class="navbar navbar-expand-lg sticky-top sh-navbar">
   <div class="container">
     <a class="navbar-brand" href="index.html">Step<span class="dot">Haven</span></a>
@@ -24,7 +25,7 @@
         <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
         <li class="nav-item"><a class="nav-link" href="products.html">Shop</a></li>
         <li class="nav-item"><a class="nav-link" href="inventory.html">Inventory</a></li>
-              <li class="nav-item"><a class="nav-link" href="wishlist.html">Wishlist</a></li>
+        <li class="nav-item"><a class="nav-link active" href="wishlist.html">Wishlist</a></li>
         <li class="nav-item dropdown">
           <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">More</a>
           <ul class="dropdown-menu">
@@ -34,10 +35,13 @@
             <li><a class="dropdown-item" href="about.html">About Us</a></li>
           </ul>
         </li>
-</ul>
+      </ul>
       <div class="d-flex align-items-center gap-2 mt-3 mt-lg-0">
-        <a href="wishlist.html" class="nav-icon-btn position-relative"><i class="bi bi-heart"></i><span class="badge-count wishlist-badge">0</span></a>
-        <a href="cart.html" class="nav-icon-btn position-relative active">
+        <a href="wishlist.html" class="nav-icon-btn position-relative active">
+          <i class="bi bi-heart-fill" style="color:var(--color-leather);"></i>
+          <span class="badge-count wishlist-badge">0</span>
+        </a>
+        <a href="cart.html" class="nav-icon-btn position-relative">
           <i class="bi bi-bag"></i>
           <span class="badge-count cart-badge">0</span>
         </a>
@@ -48,53 +52,55 @@
 </nav>
 
 <div class="container section">
-  <span class="eyebrow">Langkah 1 dari 2</span>
-  <h2 class="mb-5">Keranjang Belanja</h2>
-
-  <div class="row g-5">
-    <div class="col-lg-8">
-      <div id="cartItemsWrap"></div>
-
-      <div id="cartEmptyState" class="empty-state d-none">
-        <i class="bi bi-bag-x"></i>
-        <h4>Keranjang kamu masih kosong</h4>
-        <p class="text-muted">Yuk mulai jelajahi koleksi sepatu terbaik kami.</p>
-        <a href="products.html" class="btn btn-leather mt-2">Mulai Belanja</a>
-      </div>
-
-      <div class="mt-4">
-        <label for="promoInput" class="form-label small text-muted">Punya kode promo?</label>
-        <div class="input-group" style="max-width:380px;">
-          <input type="text" id="promoInput" class="form-control" placeholder="cth: STEPHAVEN10">
-          <button class="btn btn-outline-ink" id="applyPromoBtn">Terapkan</button>
-        </div>
-      </div>
+  <div class="section-head">
+    <div>
+      <span class="eyebrow">Koleksi Favorit</span>
+      <h2>Wishlist Saya</h2>
     </div>
+    <span id="wishlistCount" class="text-muted small"></span>
+  </div>
 
-    <div class="col-lg-4" id="cartSummaryWrap">
-      <div class="summary-box">
-        <h5 class="mb-3">Ringkasan Belanja</h5>
-        <div class="row-line"><span>Subtotal</span><span id="sumSubtotal">Rp0</span></div>
-        <div class="row-line d-none" id="sumDiscountRow"><span>Diskon Promo</span><span id="sumDiscount" class="text-success">-Rp0</span></div>
-        <div class="row-line"><span>Pajak (8%)</span><span id="sumTax">Rp0</span></div>
-        <div class="row-line"><span>Ongkos Kirim</span><span id="sumShipping">Rp0</span></div>
-        <hr>
-        <div class="row-line fw-bold fs-5"><span>Total</span><span id="sumTotal" class="font-mono">Rp0</span></div>
-        <a href="checkout.html" class="btn btn-leather w-100 mt-3">Lanjut ke Checkout <i class="bi bi-arrow-right ms-1"></i></a>
-        <a href="products.html" class="btn btn-link w-100 mt-2 text-center">Lanjut Belanja</a>
-      </div>
-    </div>
+  <div class="row g-3" id="wishlistGrid"></div>
+
+  <div id="wishlistEmptyState" class="empty-state d-none">
+    <i class="bi bi-heart"></i>
+    <h4>Wishlist kamu masih kosong</h4>
+    <p class="text-muted">Tandai produk favoritmu dengan ikon hati saat berbelanja agar mudah ditemukan di sini.</p>
+    <a href="products.html" class="btn btn-leather mt-2">Jelajahi Produk</a>
   </div>
 </div>
 
+<!-- ============ FOOTER ============ -->
 <footer class="sh-footer">
   <div class="container">
+    <div class="row g-4">
+      <div class="col-lg-4">
+        <a class="navbar-brand mb-3 d-inline-block" href="index.html">Step<span class="dot">Haven</span></a>
+        <p class="text-muted small">Toko sepatu online terpercaya dengan koleksi modern untuk setiap gaya hidup.</p>
+      </div>
+      <div class="col-6 col-lg-2">
+        <h6>Belanja</h6>
+        <a href="products.html">Semua Produk</a>
+        <a href="cart.html">Keranjang</a>
+        <a href="wishlist.html">Wishlist</a>
+      </div>
+      <div class="col-6 col-lg-2">
+        <h6>Perusahaan</h6>
+        <a href="about.html">About Us</a>
+        <a href="career.html">Career</a>
+        <a href="blog.html">Blog</a>
+      </div>
+      <div class="col-lg-4">
+        <h6>Kontak</h6>
+        <p class="text-muted small"><i class="bi bi-geo-alt me-2"></i>Surabaya, Jawa Timur, Indonesia</p>
+      </div>
+    </div>
     <div class="footer-bottom text-center">&copy; 2026 StepHaven. Proyek tugas frontend.</div>
   </div>
 </footer>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
 <script src="js/app.js"></script>
-<script src="js/cart.js"></script>
+<script src="js/wishlist.js"></script>
 </body>
 </html>

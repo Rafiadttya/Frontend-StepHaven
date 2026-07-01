@@ -17,7 +17,7 @@
   <div class="container">
     <a class="navbar-brand" href="index.html">Step<span class="dot">Haven</span></a>
     <div class="d-flex align-items-center gap-2">
-      <button class="nav-icon-btn theme-toggle"><i class="bi bi-moon-stars"></i></button>
+      <a href="wishlist.html" class="nav-icon-btn position-relative"><i class="bi bi-heart"></i><span class="badge-count wishlist-badge">0</span></a>
       <a href="cart.html" class="nav-icon-btn position-relative">
         <i class="bi bi-bag"></i>
         <span class="badge-count cart-badge">0</span>
@@ -67,18 +67,112 @@
 
         <h5 class="mb-3">Metode Pembayaran</h5>
         <div class="mb-4">
-          <div class="form-check filter-box mb-2 p-3">
-            <input class="form-check-input" type="radio" name="payment" id="payTransfer" value="Transfer Bank" checked>
-            <label class="form-check-label" for="payTransfer"><i class="bi bi-bank me-2"></i>Transfer Bank</label>
+
+          <!-- ===== TRANSFER BANK ===== -->
+          <label class="payment-method-card mb-2" for="payTransfer" id="cardTransfer">
+            <input class="form-check-input d-none" type="radio" name="payment" id="payTransfer" value="Transfer Bank" checked>
+            <span class="payment-method-head">
+              <i class="bi bi-bank"></i>
+              <span>Transfer Bank</span>
+              <i class="bi bi-check-circle-fill ms-auto check-mark"></i>
+            </span>
+          </label>
+          <div class="payment-suboptions show" id="bankOptions">
+            <div class="row g-2">
+              <div class="col-6 col-md-3">
+                <label class="bank-option active" data-bank="BCA">
+                  <input type="radio" name="bankChoice" value="BCA" checked>
+                  <span class="logo-circle" style="background:#0058A3;">BCA</span>
+                  <span class="bank-name">Bank BCA</span>
+                  <span class="bank-acc">1234 5678 90</span>
+                </label>
+              </div>
+              <div class="col-6 col-md-3">
+                <label class="bank-option" data-bank="BRI">
+                  <input type="radio" name="bankChoice" value="BRI">
+                  <span class="logo-circle" style="background:#00529C;">BRI</span>
+                  <span class="bank-name">Bank BRI</span>
+                  <span class="bank-acc">0098 7654 32</span>
+                </label>
+              </div>
+              <div class="col-6 col-md-3">
+                <label class="bank-option" data-bank="Mandiri">
+                  <input type="radio" name="bankChoice" value="Mandiri">
+                  <span class="logo-circle" style="background:#003A70;">M</span>
+                  <span class="bank-name">Bank Mandiri</span>
+                  <span class="bank-acc">1370 0011 22</span>
+                </label>
+              </div>
+              <div class="col-6 col-md-3">
+                <label class="bank-option" data-bank="BNI">
+                  <input type="radio" name="bankChoice" value="BNI">
+                  <span class="logo-circle" style="background:#F36F21;">BNI</span>
+                  <span class="bank-name">Bank BNI</span>
+                  <span class="bank-acc">0211 4455 66</span>
+                </label>
+              </div>
+            </div>
           </div>
-          <div class="form-check filter-box mb-2 p-3">
-            <input class="form-check-input" type="radio" name="payment" id="payEwallet" value="E-Wallet">
-            <label class="form-check-label" for="payEwallet"><i class="bi bi-wallet2 me-2"></i>E-Wallet (OVO/GoPay/DANA)</label>
+
+          <!-- ===== E-WALLET ===== -->
+          <label class="payment-method-card mb-2" for="payEwallet" id="cardEwallet">
+            <input class="form-check-input d-none" type="radio" name="payment" id="payEwallet" value="E-Wallet">
+            <span class="payment-method-head">
+              <i class="bi bi-wallet2"></i>
+              <span>E-Wallet</span>
+              <i class="bi bi-check-circle-fill ms-auto check-mark"></i>
+            </span>
+          </label>
+          <div class="payment-suboptions" id="ewalletOptions">
+            <div class="row g-2">
+              <div class="col-6 col-md-3">
+                <label class="bank-option active" data-ewallet="OVO">
+                  <input type="radio" name="ewalletChoice" value="OVO" checked>
+                  <span class="logo-circle" style="background:#4C3494;">OVO</span>
+                  <span class="bank-name">OVO</span>
+                  <span class="bank-acc">0812-3456-7890</span>
+                </label>
+              </div>
+              <div class="col-6 col-md-3">
+                <label class="bank-option" data-ewallet="GoPay">
+                  <input type="radio" name="ewalletChoice" value="GoPay">
+                  <span class="logo-circle" style="background:#00AED6;">GP</span>
+                  <span class="bank-name">GoPay</span>
+                  <span class="bank-acc">0812-3456-7890</span>
+                </label>
+              </div>
+              <div class="col-6 col-md-3">
+                <label class="bank-option" data-ewallet="DANA">
+                  <input type="radio" name="ewalletChoice" value="DANA">
+                  <span class="logo-circle" style="background:#118EEA;">DN</span>
+                  <span class="bank-name">DANA</span>
+                  <span class="bank-acc">0812-3456-7890</span>
+                </label>
+              </div>
+              <div class="col-6 col-md-3">
+                <label class="bank-option" data-ewallet="ShopeePay">
+                  <input type="radio" name="ewalletChoice" value="ShopeePay">
+                  <span class="logo-circle" style="background:#EE4D2D;">SP</span>
+                  <span class="bank-name">ShopeePay</span>
+                  <span class="bank-acc">0812-3456-7890</span>
+                </label>
+              </div>
+            </div>
           </div>
-          <div class="form-check filter-box p-3">
-            <input class="form-check-input" type="radio" name="payment" id="payCod" value="COD">
-            <label class="form-check-label" for="payCod"><i class="bi bi-cash-coin me-2"></i>Bayar di Tempat (COD)</label>
+
+          <!-- ===== COD ===== -->
+          <label class="payment-method-card" for="payCod" id="cardCod">
+            <input class="form-check-input d-none" type="radio" name="payment" id="payCod" value="COD">
+            <span class="payment-method-head">
+              <i class="bi bi-cash-coin"></i>
+              <span>Bayar di Tempat (COD)</span>
+              <i class="bi bi-check-circle-fill ms-auto check-mark"></i>
+            </span>
+          </label>
+          <div class="payment-suboptions" id="codOptions">
+            <p class="text-muted small mb-0 px-1">Pembayaran dilakukan tunai langsung kepada kurir saat paket tiba. Tidak ada langkah tambahan yang diperlukan.</p>
           </div>
+
         </div>
 
         <button type="submit" class="btn btn-leather btn-lg w-100">Konfirmasi Pesanan <i class="bi bi-check2-circle ms-1"></i></button>
@@ -173,6 +267,36 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('coTotal').textContent = StepHaven.formatRupiah(total);
 
   const form = document.getElementById('checkoutForm');
+
+  /* ---------- Interactive payment method switching ---------- */
+  const paymentCards = {
+    'Transfer Bank': { card: document.getElementById('cardTransfer'), panel: document.getElementById('bankOptions') },
+    'E-Wallet':      { card: document.getElementById('cardEwallet'), panel: document.getElementById('ewalletOptions') },
+    'COD':           { card: document.getElementById('cardCod'), panel: document.getElementById('codOptions') }
+  };
+
+  function switchPaymentMethod(selectedValue){
+    Object.entries(paymentCards).forEach(([value, els]) => {
+      const isActive = value === selectedValue;
+      els.card.classList.toggle('selected', isActive);
+      els.panel.classList.toggle('show', isActive);
+    });
+  }
+  form.querySelectorAll('input[name="payment"]').forEach(radio => {
+    radio.addEventListener('change', () => switchPaymentMethod(radio.value));
+  });
+  switchPaymentMethod('Transfer Bank'); // default state on page load
+
+  /* ---------- Bank / e-wallet sub-option selection ---------- */
+  form.querySelectorAll('.bank-option').forEach(option => {
+    option.addEventListener('click', () => {
+      const group = option.closest('.payment-suboptions');
+      group.querySelectorAll('.bank-option').forEach(o => o.classList.remove('active'));
+      option.classList.add('active');
+      option.querySelector('input[type="radio"]').checked = true;
+    });
+  });
+
   form.addEventListener('submit', (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -182,13 +306,24 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    // Build invoice
+    // Build invoice — include selected bank / e-wallet detail
     const payment = form.querySelector('input[name="payment"]:checked').value;
+    let paymentDetail = payment;
+    if(payment === 'Transfer Bank'){
+      const bank = form.querySelector('input[name="bankChoice"]:checked');
+      if(bank) paymentDetail = `Transfer Bank — ${bank.value}`;
+    }else if(payment === 'E-Wallet'){
+      const ewallet = form.querySelector('input[name="ewalletChoice"]:checked');
+      if(ewallet) paymentDetail = `E-Wallet — ${ewallet.value}`;
+    }else{
+      paymentDetail = 'Bayar di Tempat (COD)';
+    }
+
     document.getElementById('invNumber').textContent = 'INV-' + Date.now().toString().slice(-8);
     document.getElementById('invName').textContent = form.fullname.value;
     document.getElementById('invEmail').textContent = form.email.value;
     document.getElementById('invAddress').textContent = form.address.value + ', ' + form.postal.value;
-    document.getElementById('invPayment').textContent = payment;
+    document.getElementById('invPayment').textContent = paymentDetail;
     document.getElementById('invDate').textContent = new Date().toLocaleDateString('id-ID', { year:'numeric', month:'long', day:'numeric' });
     document.getElementById('invItemsList').innerHTML = listEl.innerHTML;
     document.getElementById('invTotal').textContent = StepHaven.formatRupiah(total);

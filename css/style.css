@@ -19,12 +19,6 @@
   --color-danger:     #B33A3A;
   --color-white:      #FFFFFF;
 
-  /* Dark mode */
-  --color-ink-dark:    #F2EFE9;
-  --color-paper-dark:  #16151A;
-  --color-sand-dark:   #221F22;
-  --color-line-dark:   #38343a;
-
   /* Typography */
   --font-display: 'Fraunces', Georgia, serif;
   --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -47,13 +41,6 @@
   --shadow-lift: 0 16px 40px rgba(26,26,29,0.14);
 
   --transition: 220ms cubic-bezier(.4,0,.2,1);
-}
-
-[data-theme="dark"]{
-  --color-ink: var(--color-ink-dark);
-  --color-paper: var(--color-paper-dark);
-  --color-sand: var(--color-sand-dark);
-  --color-line: var(--color-line-dark);
 }
 
 *{ box-sizing: border-box; }
@@ -618,8 +605,139 @@ a{ color: inherit; text-decoration: none; }
 .gallery-thumb.active{ border-color: var(--color-leather); }
 .gallery-thumb img{ width:100%; height:100%; object-fit:cover; }
 
-/* ---------- DARK MODE TOGGLE ---------- */
-.theme-toggle{ cursor:pointer; }
+/* ---------- CHECKOUT: PAYMENT METHOD CARDS ---------- */
+.payment-method-card{
+  display:block;
+  cursor:pointer;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-white);
+  transition: var(--transition);
+}
+.payment-method-card:hover{
+  border-color: var(--color-leather);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-soft);
+}
+.payment-method-card.selected{
+  border-color: var(--color-leather);
+  background: var(--color-sand);
+  box-shadow: 0 0 0 3px rgba(181,86,45,0.12);
+}
+.payment-method-head{
+  display:flex; align-items:center; gap:10px;
+  font-weight:600;
+}
+.payment-method-head i.bi-bank,
+.payment-method-head i.bi-wallet2,
+.payment-method-head i.bi-cash-coin{
+  font-size: 1.3rem;
+  color: var(--color-leather);
+}
+.payment-method-head .check-mark{
+  color: var(--color-line);
+  font-size: 1.2rem;
+  transition: var(--transition);
+}
+.payment-method-card.selected .check-mark{ color: var(--color-leather); }
+
+.payment-suboptions{
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: max-height 400ms ease, opacity 300ms ease, margin 300ms ease;
+}
+.payment-suboptions.show{
+  max-height: 600px;
+  opacity: 1;
+  margin: var(--space-2) 0 var(--space-3);
+}
+
+.bank-option{
+  display:block;
+  text-align:center;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-sm);
+  padding: var(--space-3) var(--space-2);
+  background: var(--color-paper);
+  cursor: pointer;
+  transition: var(--transition);
+}
+.bank-option:hover{
+  border-color: var(--color-leather);
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-soft);
+}
+.bank-option.active{
+  border-color: var(--color-leather);
+  background: var(--color-white);
+  box-shadow: 0 0 0 2px rgba(181,86,45,0.15);
+}
+.logo-circle{
+  display:flex; align-items:center; justify-content:center;
+  width:44px; height:44px;
+  border-radius:50%;
+  margin: 0 auto 8px;
+  color:#fff;
+  font-weight:700;
+  font-family: var(--font-display);
+  font-size: 0.78rem;
+  letter-spacing: 0.02em;
+}
+.bank-option .bank-name{
+  display:block;
+  font-size: 0.82rem;
+  font-weight:600;
+}
+.bank-option .bank-acc{
+  display:block;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--color-leather);
+  margin-top: 4px;
+}
+
+/* ---------- INVENTORY: COLOR PRESET CHIPS ---------- */
+.color-preset-chip{
+  display:inline-flex; align-items:center; gap:6px;
+  padding: 5px 10px;
+  border: 1.5px solid var(--color-line);
+  border-radius: 20px;
+  cursor:pointer;
+  transition: var(--transition);
+  background: var(--color-paper);
+  user-select:none;
+}
+.color-preset-chip:hover{ border-color: var(--color-leather); }
+.color-preset-chip input[type="checkbox"]{ display:none; }
+.color-preset-chip input[type="checkbox"]:checked + .color-dot-chip{
+  box-shadow: 0 0 0 2px var(--color-paper), 0 0 0 4px var(--color-leather);
+}
+.color-preset-chip:has(input:checked){
+  border-color: var(--color-leather);
+  background: rgba(181,86,45,0.06);
+}
+.color-dot-chip{
+  display:inline-block;
+  width:18px; height:18px;
+  border-radius:50%;
+  flex-shrink:0;
+}
+.chip-label{ font-size:0.82rem; font-weight:500; }
+
+.custom-color-chip{
+  display:inline-flex; align-items:center; gap:6px;
+  padding: 4px 10px;
+  border: 1.5px solid var(--color-line);
+  border-radius: 20px;
+  background: var(--color-paper);
+  font-size:0.82rem;
+}
+.custom-color-chip button{
+  background:none; border:none; padding:0; line-height:1;
+  color: var(--color-danger); cursor:pointer; font-size:0.85rem;
+}
 
 /* ---------- FADE / REVEAL ANIMATIONS ---------- */
 .reveal{
