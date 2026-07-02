@@ -31,33 +31,7 @@
       </div>
       <div class="col-lg-7">
         <div class="p-5">
-          <h3 class="mb-3">Login</h3>
-
-          <!-- Demo Account Info Card -->
-          <div class="alert mb-4" style="background:var(--color-sand);border:1px solid var(--color-line);border-radius:var(--radius-sm);">
-            <div class="d-flex align-items-center gap-2 mb-2">
-              <i class="bi bi-info-circle" style="color:var(--color-leather);"></i>
-              <strong class="small">Akun Demo untuk Pengujian</strong>
-            </div>
-            <div class="row g-2">
-              <div class="col-6">
-                <div class="p-2" style="background:#fff;border-radius:8px;border:1px solid var(--color-line);">
-                  <div class="font-mono" style="font-size:0.65rem;color:var(--color-leather);text-transform:uppercase;margin-bottom:4px;">Admin</div>
-                  <div class="small"><strong>Email:</strong> admin@stephaven.com</div>
-                  <div class="small"><strong>Pass:</strong> Admin123</div>
-                  <button type="button" class="btn btn-sm mt-1 w-100" style="font-size:0.72rem;background:var(--color-leather);color:#fff;" onclick="fillDemo('admin@stephaven.com','Admin123')">Gunakan</button>
-                </div>
-              </div>
-              <div class="col-6">
-                <div class="p-2" style="background:#fff;border-radius:8px;border:1px solid var(--color-line);">
-                  <div class="font-mono" style="font-size:0.65rem;color:var(--color-olive);text-transform:uppercase;margin-bottom:4px;">User</div>
-                  <div class="small"><strong>Email:</strong> user@stephaven.com</div>
-                  <div class="small"><strong>Pass:</strong> User123</div>
-                  <button type="button" class="btn btn-sm mt-1 w-100" style="font-size:0.72rem;background:var(--color-olive);color:#fff;" onclick="fillDemo('user@stephaven.com','User123')">Gunakan</button>
-                </div>
-              </div>
-            </div>
-          </div>
+          <h3 class="mb-4">Login</h3>
 
           <form id="loginForm" class="needs-validation" novalidate>
             <div class="mb-3">
@@ -87,7 +61,7 @@
               <button type="button" class="btn btn-outline-ink flex-grow-1"><i class="bi bi-google me-1"></i>Google</button>
               <button type="button" class="btn btn-outline-ink flex-grow-1"><i class="bi bi-facebook me-1"></i>Facebook</button>
             </div>
-            <p class="text-center small mb-0">Belum punya akun? <a href="register.html" class="fw-semibold">Daftar di sini</a></p>
+
           </form>
         </div>
       </div>
@@ -118,35 +92,69 @@
 <script src="js/app.js"></script>
 <script>
 /* =========================================================
-   Demo accounts — validated client-side against hardcoded
-   credentials. No backend required. Data saved in localStorage.
+   login.html — Authentication logic
+   Akun tersedia di localStorage (di-seed oleh app.js).
+   User mengetik email & password secara manual.
+   Tidak ada info akun yang ditampilkan di UI.
    ========================================================= */
-const DEMO_ACCOUNTS = [
-  { email:'admin@stephaven.com', password:'Admin123', name:'Admin StepHaven', username:'admin', role:'admin',  avatar:'', phone:'081200000000', address:'Jl. Raya Darmo No. 88, Surabaya', joinDate:'2018-01-01' },
-  { email:'user@stephaven.com',  password:'User123',  name:'User Demo',       username:'userdemo', role:'user', avatar:'', phone:'081299999999', address:'Jl. Pemuda No. 12, Surabaya',  joinDate:'2024-06-01' }
+
+/* Akun yang valid — disimpan di localStorage saat seed,
+   dicocokkan saat submit. Tidak pernah ditampilkan ke UI. */
+const VALID_ACCOUNTS = [
+  {
+    email: 'admin@stephaven.com', password: 'Admin123',
+    name: 'Admin StepHaven', username: 'admin', role: 'admin',
+    avatar: '', phone: '081200000000',
+    address: 'Jl. Raya Darmo No. 88, Surabaya', joinDate: '2018-01-01'
+  },
+  {
+    email: 'user@stephaven.com', password: 'User123',
+    name: 'User Demo', username: 'userdemo', role: 'user',
+    avatar: '', phone: '081299999999',
+    address: 'Jl. Pemuda No. 12, Surabaya', joinDate: '2024-06-01'
+  }
 ];
 
-/* Helper: fill email + password inputs from demo card buttons */
-function fillDemo(email, password){
-  document.querySelector('#loginForm [name="email"]').value    = email;
-  document.getElementById('loginPassword').value               = password;
-}
-
 document.addEventListener('DOMContentLoaded', () => {
-  // Show / hide password
-  document.getElementById('togglePassword').addEventListener('click', function(){
+
+  /* ---- Show / hide password toggle ---- */
+  document.getElementById('togglePassword').addEventListener('click', function () {
     const input = document.getElementById('loginPassword');
     const icon  = this.querySelector('i');
-    if(input.type === 'password'){ input.type = 'text'; icon.className = 'bi bi-eye-slash'; }
-    else{ input.type = 'password'; icon.className = 'bi bi-eye'; }
+    if (input.type === 'password') {
+      input.type = 'text';
+      icon.className = 'bi bi-eye-slash';
+    } else {
+      input.type = 'password';
+      icon.className = 'bi bi-eye';
+    }
   });
 
-  // Form validation + credential check
+  /* ---- Error message helper ---- */
+  function showError(msg) {
+    let errEl = document.getElementById('loginErrorMsg');
+    if (!errEl) {
+      errEl = document.createElement('div');
+      errEl.id = 'loginErrorMsg';
+      errEl.className = 'alert alert-danger py-2 small mt-2';
+      document.getElementById('loginForm').prepend(errEl);
+    }
+    errEl.textContent = msg;
+    errEl.style.display = 'block';
+  }
+  function clearError() {
+    const errEl = document.getElementById('loginErrorMsg');
+    if (errEl) errEl.style.display = 'none';
+  }
+
+  /* ---- Form submit: validate then check credentials ---- */
   const form = document.getElementById('loginForm');
   form.addEventListener('submit', (e) => {
     e.preventDefault();
     e.stopPropagation();
-    if(!form.checkValidity()){
+    clearError();
+
+    if (!form.checkValidity()) {
       form.classList.add('was-validated');
       return;
     }
@@ -154,32 +162,33 @@ document.addEventListener('DOMContentLoaded', () => {
     const enteredEmail = form.email.value.trim().toLowerCase();
     const enteredPass  = document.getElementById('loginPassword').value;
 
-    // Check against demo accounts
-    const matched = DEMO_ACCOUNTS.find(
+    /* Match against VALID_ACCOUNTS only — no fallback */
+    const account = VALID_ACCOUNTS.find(
       acc => acc.email.toLowerCase() === enteredEmail && acc.password === enteredPass
     );
 
-    if(matched){
-      // Save full user profile to localStorage
-      localStorage.setItem(StepHaven.KEYS.USER, JSON.stringify(matched));
-      StepHaven.showToast(`Selamat datang, ${matched.name}! Mengalihkan...`, 'success');
-      setTimeout(() => location.href = 'index.html', 1000);
+    if (account) {
+      /* Save user profile (without password) to localStorage */
+      const { password, ...safeProfile } = account;
+      localStorage.setItem(StepHaven.KEYS.USER, JSON.stringify(safeProfile));
+      StepHaven.showToast(`Selamat datang, ${account.name}!`, 'success');
+      setTimeout(() => location.href = 'index.html', 900);
     } else {
-      // Any other email/pass still allowed (demo general login)
-      localStorage.setItem(StepHaven.KEYS.USER, JSON.stringify({
-        email: form.email.value, name: form.email.value.split('@')[0],
-        username: form.email.value.split('@')[0], role: 'user',
-        avatar:'', phone:'', address:'', joinDate: new Date().toISOString().slice(0,10)
-      }));
-      StepHaven.showToast('Login berhasil! Mengalihkan...', 'success');
-      setTimeout(() => location.href = 'index.html', 1000);
+      showError('Email atau password salah. Silakan coba lagi.');
     }
   });
 
+  /* Clear error whenever user starts typing again */
+  form.querySelectorAll('input').forEach(input => {
+    input.addEventListener('input', clearError);
+  });
+
+  /* ---- Forgot password modal ---- */
   document.getElementById('sendResetBtn').addEventListener('click', () => {
     StepHaven.showToast('Tautan reset password telah dikirim (demo)', 'info');
     bootstrap.Modal.getInstance(document.getElementById('forgotModal')).hide();
   });
+
 });
 </script>
 </body>
