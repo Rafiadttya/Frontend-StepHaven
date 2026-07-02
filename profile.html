@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Profil Saya — StepHaven</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/responsive.css">
+<style>
+/* ---- Profile-page specific styles (scoped, doesn't pollute global CSS) ---- */
+.profile-avatar{
+  width:110px; height:110px; border-radius:50%;
+  object-fit:cover;
+  border:3px solid var(--color-leather);
+  background:var(--color-sand);
+  display:flex; align-items:center; justify-content:center;
+  font-size:2.8rem; color:var(--color-leather);
+  flex-shrink:0;
+}
+.profile-avatar img{ width:100%; height:100%; border-radius:50%; object-fit:cover; }
+.profile-stat-card{
+  background:var(--color-white);
+  border:1px solid var(--color-line);
+  border-radius:var(--radius-md);
+  padding:var(--space-4);
+  text-align:center;
+}
+.profile-stat-card .stat-value{
+  font-family:var(--font-display); font-size:2.2rem; font-weight:600;
+  color:var(--color-leather); line-height:1;
+}
+.profile-stat-card .stat-label{
+  font-family:var(--font-mono); font-size:0.72rem; text-transform:uppercase;
+  opacity:0.6; margin-top:6px;
+}
+.role-badge{
+  display:inline-block;
+  font-family:var(--font-mono); font-size:0.68rem;
+  text-transform:uppercase; letter-spacing:0.08em;
+  padding:3px 12px; border-radius:20px;
+}
+.role-badge.admin{ background:rgba(181,86,45,0.12); color:var(--color-leather); }
+.role-badge.user { background:rgba(107,113,86,0.14); color:var(--color-olive); }
+.order-row{
+  display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;
+  padding:var(--space-3) 0; border-bottom:1px solid var(--color-line);
+}
+.order-row:last-child{ border-bottom:none; }
+</style>
+</head>
+<body>
+
+<!-- ============ NAVBAR ============ -->
+<nav class="navbar navbar-expand-lg sticky-top sh-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="index.html">Step<span class="dot">Haven</span></a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
+      <i class="bi bi-list fs-2"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="mainNav">
+      <ul class="navbar-nav mx-auto">
+        <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+        <li class="nav-item"><a class="nav-link" href="products.html">Shop</a></li>
+        <li class="nav-item"><a class="nav-link" href="inventory.html">Inventory</a></li>
+        <li class="nav-item"><a class="nav-link" href="wishlist.html">Wishlist</a></li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">More</a>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="blog.html">Blog</a></li>
+            <li><a class="dropdown-item" href="size-guide.html">Size Guide</a></li>
+            <li><a class="dropdown-item" href="about.html">About Us</a></li>
+          </ul>
+        </li>
+      </ul>
+      <div class="d-flex align-items-center gap-2 mt-3 mt-lg-0">
+        <a href="wishlist.html" class="nav-icon-btn position-relative"><i class="bi bi-heart"></i><span class="badge-count wishlist-badge">0</span></a>
+        <a href="cart.html" class="nav-icon-btn position-relative">
+          <i class="bi bi-bag"></i>
+          <span class="badge-count cart-badge">0</span>
+        </a>
+        <a href="profile.html" class="nav-icon-btn active" title="Profil"><i class="bi bi-person-circle"></i></a>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- ============ NOT LOGGED IN STATE (hidden by default, shown by JS) ============ -->
+<div id="notLoggedIn" class="container auth-wrap d-none">
+  <div class="text-center mx-auto" style="max-width:400px;">
+    <i class="bi bi-lock" style="font-size:3.5rem; color:var(--color-line); display:block; margin-bottom:24px;"></i>
+    <h3>Belum Login</h3>
+    <p class="text-muted">Kamu perlu login terlebih dahulu untuk melihat profil.</p>
+    <a href="login.html" class="btn btn-leather btn-lg mt-2">Login Sekarang</a>
+  </div>
+</div>
+
+<!-- ============ PROFILE CONTENT (shown only when logged in) ============ -->
+<div id="profileContent" class="container section d-none">
+
+  <!-- ---- Header Row ---- -->
+  <div class="row g-4 align-items-center mb-5">
+    <div class="col-auto">
+      <div class="profile-avatar" id="avatarWrap">
+        <i class="bi bi-person-fill" id="avatarIcon"></i>
+        <img id="avatarImg" src="" alt="avatar" style="display:none;">
+      </div>
+    </div>
+    <div class="col">
+      <div class="d-flex align-items-center gap-2 mb-1 flex-wrap">
+        <h2 class="mb-0" id="profileName">—</h2>
+        <span class="role-badge user" id="profileRoleBadge">user</span>
+      </div>
+      <div class="text-muted small mb-2"><i class="bi bi-at me-1"></i><span id="profileUsername">—</span></div>
+      <div class="text-muted small"><i class="bi bi-calendar3 me-1"></i>Bergabung sejak <span id="profileJoinDate">—</span></div>
+    </div>
+    <div class="col-auto d-flex gap-2">
+      <button class="btn btn-outline-ink" id="editProfileBtn"><i class="bi bi-pencil me-1"></i>Edit Profil</button>
+      <button class="btn btn-outline-danger btn-logout"><i class="bi bi-box-arrow-right me-1"></i>Logout</button>
+    </div>
+  </div>
+
+  <!-- ---- Stats ---- -->
+  <div class="row g-3 mb-5">
+    <div class="col-6 col-md-3">
+      <div class="profile-stat-card">
+        <div class="stat-value" id="statOrders">0</div>
+        <div class="stat-label">Total Pesanan</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="profile-stat-card">
+        <div class="stat-value" id="statWishlist">0</div>
+        <div class="stat-label">Wishlist</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="profile-stat-card">
+        <div class="stat-value" id="statItems">0</div>
+        <div class="stat-label">Produk Dibeli</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="profile-stat-card">
+        <div class="stat-value" id="statCart">0</div>
+        <div class="stat-label">Item di Keranjang</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ---- Main content grid ---- -->
+  <div class="row g-4">
+
+    <!-- LEFT: Profile Info (view & edit) -->
+    <div class="col-lg-5">
+
+      <!-- VIEW MODE -->
+      <div class="filter-box" id="viewMode">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h5 class="mb-0">Informasi Akun</h5>
+          <span class="stock-pill in" id="statusBadge">Aktif</span>
+        </div>
+        <table class="table table-sm mb-0" style="font-size:0.9rem;">
+          <tbody>
+            <tr><td class="text-muted" style="width:38%;">Nama Lengkap</td><td id="viewName">—</td></tr>
+            <tr><td class="text-muted">Username</td><td id="viewUsername">—</td></tr>
+            <tr><td class="text-muted">Email</td><td id="viewEmail">—</td></tr>
+            <tr><td class="text-muted">No. Telepon</td><td id="viewPhone">—</td></tr>
+            <tr><td class="text-muted">Alamat</td><td id="viewAddress">—</td></tr>
+            <tr><td class="text-muted">Status Akun</td><td id="viewStatus">Aktif</td></tr>
+            <tr><td class="text-muted">Bergabung</td><td id="viewJoin">—</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- EDIT MODE (hidden by default) -->
+      <div class="filter-box d-none" id="editMode">
+        <h5 class="mb-3">Edit Profil</h5>
+        <form id="profileForm" novalidate>
+          <div class="mb-3">
+            <label class="form-label small">Nama Lengkap</label>
+            <input type="text" class="form-control" name="name" required minlength="2">
+            <div class="invalid-feedback">Nama minimal 2 karakter.</div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label small">Username</label>
+            <input type="text" class="form-control" name="username" required minlength="3">
+            <div class="invalid-feedback">Username minimal 3 karakter.</div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label small">Email</label>
+            <input type="email" class="form-control" name="email" required>
+            <div class="invalid-feedback">Format email tidak valid.</div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label small">No. Telepon</label>
+            <input type="tel" class="form-control" name="phone">
+          </div>
+          <div class="mb-3">
+            <label class="form-label small">Alamat</label>
+            <textarea class="form-control" name="address" rows="2"></textarea>
+          </div>
+          <div class="mb-4">
+            <label class="form-label small">URL Foto Profil (opsional)</label>
+            <input type="url" class="form-control" name="avatar" placeholder="https://...">
+          </div>
+          <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-leather flex-grow-1"><i class="bi bi-check2 me-1"></i>Simpan</button>
+            <button type="button" class="btn btn-outline-ink" id="cancelEditBtn">Batal</button>
+          </div>
+        </form>
+      </div>
+
+    </div>
+
+    <!-- RIGHT: Order History -->
+    <div class="col-lg-7">
+      <div class="filter-box">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h5 class="mb-0">Riwayat Pesanan</h5>
+          <span class="text-muted small" id="orderCountLabel"></span>
+        </div>
+
+        <div id="orderList"></div>
+
+        <div id="orderEmptyState" class="empty-state py-4 d-none">
+          <i class="bi bi-bag-x" style="font-size:2.5rem; color:var(--color-line); display:block; margin-bottom:12px;"></i>
+          <p class="text-muted mb-2">Belum ada riwayat pesanan.</p>
+          <a href="products.html" class="btn btn-leather btn-sm">Mulai Belanja</a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ============ FOOTER ============ -->
+<footer class="sh-footer">
+  <div class="container">
+    <div class="row g-4">
+      <div class="col-lg-4">
+        <a class="navbar-brand mb-3 d-inline-block" href="index.html">Step<span class="dot">Haven</span></a>
+        <p class="text-muted small">Toko sepatu online terpercaya dengan koleksi modern untuk setiap gaya hidup.</p>
+      </div>
+      <div class="col-6 col-lg-2">
+        <h6>Belanja</h6>
+        <a href="products.html">Semua Produk</a>
+        <a href="cart.html">Keranjang</a>
+        <a href="wishlist.html">Wishlist</a>
+      </div>
+      <div class="col-6 col-lg-2">
+        <h6>Perusahaan</h6>
+        <a href="about.html">About Us</a>
+        <a href="blog.html">Blog</a>
+        <a href="size-guide.html">Size Guide</a>
+      </div>
+      <div class="col-lg-4">
+        <h6>Kontak</h6>
+        <p class="text-muted small"><i class="bi bi-geo-alt me-2"></i>Surabaya, Jawa Timur, Indonesia</p>
+        <p class="text-muted small"><i class="bi bi-envelope me-2"></i>hello@stephaven.id</p>
+      </div>
+    </div>
+    <div class="footer-bottom text-center">&copy; 2026 StepHaven. Proyek tugas frontend.</div>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+<script src="js/app.js"></script>
+<script>
+/* =========================================================
+   profile.html — Inline page-specific logic
+   - Load user from localStorage (sh_user key)
+   - Render profile info, stats, order history
+   - Edit form saves changes back to localStorage
+   ========================================================= */
+document.addEventListener('DOMContentLoaded', () => {
+
+  /* --- Load user data --- */
+  const userRaw = localStorage.getItem(StepHaven.KEYS.USER);
+  if(!userRaw){
+    // Not logged in
+    document.getElementById('notLoggedIn').classList.remove('d-none');
+    return;
+  }
+  document.getElementById('profileContent').classList.remove('d-none');
+
+  let user = JSON.parse(userRaw);
+
+  /* --- Helper: format join date --- */
+  function fmtDate(d){
+    if(!d) return '—';
+    return new Date(d).toLocaleDateString('id-ID',{ year:'numeric', month:'long', day:'numeric' });
+  }
+
+  /* --- Render profile view --- */
+  function renderView(){
+    user = JSON.parse(localStorage.getItem(StepHaven.KEYS.USER) || '{}');
+
+    // Header
+    document.getElementById('profileName').textContent     = user.name || user.email || '—';
+    document.getElementById('profileUsername').textContent = user.username || '—';
+    document.getElementById('profileJoinDate').textContent = fmtDate(user.joinDate);
+
+    const roleBadge = document.getElementById('profileRoleBadge');
+    roleBadge.textContent = user.role === 'admin' ? 'Admin' : 'User';
+    roleBadge.className   = `role-badge ${user.role === 'admin' ? 'admin' : 'user'}`;
+
+    // Avatar
+    const avatarImg  = document.getElementById('avatarImg');
+    const avatarIcon = document.getElementById('avatarIcon');
+    if(user.avatar && user.avatar.trim()){
+      avatarImg.src           = user.avatar;
+      avatarImg.style.display = 'block';
+      avatarIcon.style.display= 'none';
+    } else {
+      avatarImg.style.display = 'none';
+      avatarIcon.style.display= 'block';
+    }
+
+    // Table
+    document.getElementById('viewName').textContent     = user.name || '—';
+    document.getElementById('viewUsername').textContent = user.username || '—';
+    document.getElementById('viewEmail').textContent    = user.email || '—';
+    document.getElementById('viewPhone').textContent    = user.phone || '—';
+    document.getElementById('viewAddress').textContent  = user.address || '—';
+    document.getElementById('viewStatus').textContent   = 'Aktif';
+    document.getElementById('viewJoin').textContent     = fmtDate(user.joinDate);
+
+    // Stats
+    const cart          = StepHaven.getCart();
+    const wishlist      = StepHaven.getWishlist();
+    const orders        = JSON.parse(localStorage.getItem('sh_orders') || '[]');
+    const totalItems    = orders.reduce((s,o) => s + (o.itemCount || 0), 0);
+
+    document.getElementById('statOrders').textContent   = orders.length;
+    document.getElementById('statWishlist').textContent = wishlist.length;
+    document.getElementById('statItems').textContent    = totalItems;
+    document.getElementById('statCart').textContent     = cart.reduce((s,i) => s + i.qty, 0);
+
+    // Order history
+    renderOrders(orders);
+  }
+
+  /* --- Render order history rows --- */
+  function renderOrders(orders){
+    const list       = document.getElementById('orderList');
+    const empty      = document.getElementById('orderEmptyState');
+    const countLabel = document.getElementById('orderCountLabel');
+
+    countLabel.textContent = `${orders.length} pesanan`;
+
+    if(orders.length === 0){
+      list.innerHTML = '';
+      empty.classList.remove('d-none');
+      return;
+    }
+    empty.classList.add('d-none');
+
+    list.innerHTML = orders.map(o => `
+      <div class="order-row">
+        <div>
+          <div class="fw-semibold small">${o.invNumber || 'INV-' + Math.random().toString().slice(2,10)}</div>
+          <div class="text-muted" style="font-size:0.8rem;">${o.date || '—'} · ${o.payment || '—'}</div>
+        </div>
+        <div class="text-end">
+          <div class="fw-bold font-mono">${StepHaven.formatRupiah(o.total || 0)}</div>
+          <span class="stock-pill in" style="font-size:0.65rem;">Selesai</span>
+        </div>
+      </div>`).join('');
+  }
+
+  /* --- Edit / Cancel toggle --- */
+  const editBtn    = document.getElementById('editProfileBtn');
+  const cancelBtn  = document.getElementById('cancelEditBtn');
+  const viewMode   = document.getElementById('viewMode');
+  const editMode   = document.getElementById('editMode');
+  const form       = document.getElementById('profileForm');
+
+  function openEdit(){
+    // Pre-fill form from current user
+    form.elements['name'].value    = user.name || '';
+    form.elements['username'].value= user.username || '';
+    form.elements['email'].value   = user.email || '';
+    form.elements['phone'].value   = user.phone || '';
+    form.elements['address'].value = user.address || '';
+    form.elements['avatar'].value  = user.avatar || '';
+    viewMode.classList.add('d-none');
+    editMode.classList.remove('d-none');
+  }
+  function closeEdit(){
+    editMode.classList.add('d-none');
+    viewMode.classList.remove('d-none');
+    form.classList.remove('was-validated');
+  }
+
+  editBtn.addEventListener('click', openEdit);
+  cancelBtn.addEventListener('click', closeEdit);
+
+  /* --- Save profile changes --- */
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    if(!form.checkValidity()){
+      form.classList.add('was-validated');
+      return;
+    }
+    const updated = {
+      ...user,
+      name:     form.elements['name'].value.trim(),
+      username: form.elements['username'].value.trim(),
+      email:    form.elements['email'].value.trim(),
+      phone:    form.elements['phone'].value.trim(),
+      address:  form.elements['address'].value.trim(),
+      avatar:   form.elements['avatar'].value.trim()
+    };
+    localStorage.setItem(StepHaven.KEYS.USER, JSON.stringify(updated));
+    user = updated;
+    closeEdit();
+    renderView();
+    StepHaven.showToast('Profil berhasil diperbarui', 'success');
+  });
+
+  /* --- Initial render --- */
+  renderView();
+
+  /* --- Record a demo order so history isn't always empty (runs once) --- */
+  const orders = JSON.parse(localStorage.getItem('sh_orders') || '[]');
+  if(orders.length === 0){
+    const demo = [
+      { invNumber:'INV-20260601', date:'1 Juni 2026', payment:'Transfer Bank — BCA', total:1324000, itemCount:1 },
+      { invNumber:'INV-20260615', date:'15 Juni 2026', payment:'E-Wallet — GoPay',   total:2598000, itemCount:2 }
+    ];
+    localStorage.setItem('sh_orders', JSON.stringify(demo));
+    renderOrders(demo);
+    document.getElementById('statOrders').textContent = demo.length;
+    document.getElementById('statItems').textContent  = demo.reduce((s,o) => s + o.itemCount, 0);
+  }
+});
+</script>
+</body>
+</html>
