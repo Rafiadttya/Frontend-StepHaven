@@ -124,7 +124,10 @@ StepHaven.Inventory = {
       );
     }
     if(this.state.category !== 'all'){
-      products = products.filter(p => p.category === this.state.category);
+      products = products.filter(p =>
+        p.category === this.state.category ||
+        (p.subCategory && p.subCategory === this.state.category)
+      );
     }
     return products;
   },
@@ -159,7 +162,7 @@ StepHaven.Inventory = {
         <td class="font-mono small">${p.id}</td>
         <td>${p.name}</td>
         <td>${p.brand}</td>
-        <td>${p.category}</td>
+        <td><span class="small">${p.subCategory || p.category}</span></td>
         <td class="font-mono">${StepHaven.formatRupiah(p.price)}</td>
         <td>${colorDots || '<span class="text-muted small">-</span>'}</td>
         <td>${p.stock}</td>
@@ -205,7 +208,7 @@ StepHaven.Inventory = {
 
       form.elements['name'].value     = p.name;
       form.elements['brand'].value    = p.brand;
-      form.elements['category'].value = p.category;
+      form.elements['category'].value = p.subCategory || p.category;
       form.elements['price'].value    = p.price;
       form.elements['discount'].value = p.discount;
       form.elements['stock'].value    = p.stock;
@@ -265,7 +268,15 @@ StepHaven.Inventory = {
     const data = {
       name:     form.elements['name'].value.trim(),
       brand:    form.elements['brand'].value.trim(),
-      category: form.elements['category'].value,
+      /* Store the selected value as subCategory; derive parent automatically */
+      category: (() => {
+        const v = form.elements['category'].value;
+        if(['Sneakers Casual','Slip-On','Canvas Shoes','Casual Shoes'].includes(v)) return 'Casual Shoes';
+        if(['Loafers','Oxford Style Casual','Leather Semi Formal','Semi Formal Shoes'].includes(v)) return 'Semi Formal Shoes';
+        if(['Limited Edition','Exclusive Release'].includes(v)) return 'Limited Edition';
+        return v;
+      })(),
+      subCategory: form.elements['category'].value,
       price:    parseInt(form.elements['price'].value),
       discount: parseInt(form.elements['discount'].value) || 0,
       stock:    parseInt(form.elements['stock'].value),
