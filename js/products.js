@@ -31,7 +31,8 @@ StepHaven.Products = {
     else stockBadge = '<span class="stock-pill in">Tersedia</span>';
 
     let cornerTag = '';
-    if(p.category === 'Limited Edition') cornerTag = '<span class="tag-corner limited">Limited</span>';
+    if(p.category === 'Limited Edition' || p.subCategory === 'Exclusive Release')
+      cornerTag = '<span class="tag-corner limited">Limited</span>';
     else if(p.discount > 0) cornerTag = `<span class="tag-corner sale">-${p.discount}%</span>`;
 
     return `
@@ -183,7 +184,11 @@ StepHaven.Products = {
       );
     }
     if(this.state.category && this.state.category !== 'all'){
-      products = products.filter(p => p.category === this.state.category);
+      /* Match parent category OR subCategory so sub-filters work correctly */
+      products = products.filter(p =>
+        p.category === this.state.category ||
+        (p.subCategory && p.subCategory === this.state.category)
+      );
     }
     if(this.state.sizes.length){
       products = products.filter(p => p.sizes.some(s => this.state.sizes.includes(s)));
