@@ -244,23 +244,117 @@ const StepHaven = {
     return html;
   },
 
+  /* -------------------- UI: SESSION / NAVBAR STATE -------------------- */
+  /*
+   * updateNavbar()
+   * Reads sh_user from localStorage on every page load.
+   *
+   * Logged IN  → hide .nav-login-btn
+   *            → convert existing .nav-profile-btn into a Bootstrap dropdown
+   *              (the icon itself becomes the toggle; a menu is injected
+   *               right after it — NO new elements are added to the layout)
+   *            → show "Admin Panel" link only when role === 'admin'
+   *
+   * Logged OUT → show .nav-login-btn (href=login.html)
+   *            → keep .nav-profile-btn as a plain link to login.html
+   *            → remove any previously injected dropdown menu
+   */
+  updateNavbar(){
+    const userRaw = localStorage.getItem(this.KEYS.USER);
+    const user    = userRaw ? JSON.parse(userRaw) : null;
+
+    /* ---- Targets (present on every page) ---- */
+    const loginBtns   = document.querySelectorAll('.nav-login-btn');
+    const profileBtns = document.querySelectorAll('.nav-profile-btn');
+
+    if(user){
+      /* ── LOGGED IN ── */
+
+      /* 1. Hide Login button */
+      loginBtns.forEach(btn => { btn.style.display = 'none'; });
+
+      /* 2. Transform each profile icon into a dropdown */
+      profileBtns.forEach(btn => {
+        /* Avoid double-init if updateNavbar() is called twice */
+        if(btn.dataset.sessionReady === '1') return;
+        btn.dataset.sessionReady = '1';
+
+        /* Make the <a> a Bootstrap dropdown toggle */
+        btn.removeAttribute('href');          // prevent navigation on click
+        btn.setAttribute('role', 'button');
+        btn.setAttribute('data-bs-toggle', 'dropdown');
+        btn.setAttribute('aria-expanded', 'false');
+        btn.style.color = 'var(--color-leather)'; // tint icon to show "active" state
+
+        /* Build dropdown menu and insert after the icon */
+        const menu = document.createElement('ul');
+        menu.className = 'dropdown-menu dropdown-menu-end shadow-sm';
+        menu.style.minWidth = '190px';
+        menu.innerHTML = `
+          <li class="px-3 py-2" style="border-bottom:1px solid var(--color-line);">
+            <div class="fw-semibold small">${user.name || user.email}</div>
+            <div class="text-muted" style="font-size:0.75rem;">${user.email || ''}</div>
+          </li>
+          <li><a class="dropdown-item" href="profile.html"><i class="bi bi-person me-2"></i>Profil Saya</a></li>
+          <li><a class="dropdown-item" href="wishlist.html"><i class="bi bi-heart me-2"></i>Wishlist</a></li>
+          <li><a class="dropdown-item" href="cart.html"><i class="bi bi-bag me-2"></i>Keranjang</a></li>
+          ${user.role === 'admin'
+            ? '<li><a class="dropdown-item" href="inventory.html"><i class="bi bi-speedometer2 me-2"></i>Admin Panel</a></li>'
+            : ''}
+          <li><hr class="dropdown-divider my-1"></li>
+          <li><a class="dropdown-item text-danger btn-logout-nav" href="#"><i class="bi bi-box-arrow-right me-2"></i>Logout</a></li>`;
+
+        /* Wrap btn + menu in a div.dropdown so Bootstrap positions the menu */
+        const wrapper = document.createElement('div');
+        wrapper.className = 'dropdown';
+        btn.parentNode.insertBefore(wrapper, btn);
+        wrapper.appendChild(btn);
+        wrapper.appendChild(menu);
+
+        /* Logout handler inside this dropdown */
+        wrapper.querySelector('.btn-logout-nav').addEventListener('click', (e) => {
+          e.preventDefault();
+          this.logout();
+        });
+      });
+
+    } else {
+      /* ── LOGGED OUT ── */
+
+      /* 1. Show Login button */
+      loginBtns.forEach(btn => { btn.style.display = ''; });
+
+      /* 2. Keep profile icon as a plain link to login (no dropdown) */
+      profileBtns.forEach(btn => {
+        btn.setAttribute('href', 'login.html');
+        btn.style.color = '';
+      });
+    }
+  },
+
+  /* ---- Shared logout: clear session and redirect ---- */
+  logout(){
+    localStorage.removeItem(this.KEYS.USER);
+    this.showToast('Berhasil keluar', 'info');
+    setTimeout(() => location.href = 'login.html', 800);
+  },
+
   /* -------------------- INIT EVERYTHING -------------------- */
   init(){
     this.getProducts(); // ensure seeded
     this.initNavbar();
+    this.updateNavbar(); // ← reads session, adjusts login/profile on every page
     this.initScrollTop();
     this.initNewsletter();
     this.updateCartBadge();
     this.updateWishlistBadge();
     this.initReveal();
 
-    // Logout handler (shared across pages, simple demo only)
+    /* Legacy .btn-logout support (profile.html logout button) */
     document.querySelectorAll('.btn-logout').forEach(btn => {
       btn.addEventListener('click', (e) => {
         e.preventDefault();
-        localStorage.removeItem(this.KEYS.USER);
-        this.showToast('Berhasil keluar', 'info');
-        setTimeout(() => location.href = 'login.html', 800);
+        this.logout();
       });
     });
   }
