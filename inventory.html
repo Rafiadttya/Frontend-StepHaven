@@ -29,14 +29,14 @@
           <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">More</a>
           <ul class="dropdown-menu">
             <li><a class="dropdown-item" href="blog.html">Blog</a></li>
-            <li><a class="dropdown-item" href="career.html">Career</a></li>
-            <li><a class="dropdown-item" href="size-guide.html">Size Guide</a></li>
+                        <li><a class="dropdown-item" href="size-guide.html">Size Guide</a></li>
             <li><a class="dropdown-item" href="about.html">About Us</a></li>
           </ul>
         </li>
 </ul>
       <div class="d-flex align-items-center gap-2 mt-3 mt-lg-0">
         <a href="wishlist.html" class="nav-icon-btn position-relative"><i class="bi bi-heart"></i><span class="badge-count wishlist-badge">0</span></a>
+        <a href="profile.html" class="nav-icon-btn" title="Profil"><i class="bi bi-person-circle"></i></a>
         <a href="cart.html" class="nav-icon-btn position-relative">
           <i class="bi bi-bag"></i>
           <span class="badge-count cart-badge">0</span>
@@ -91,12 +91,22 @@
     </div>
     <select id="invCategoryFilter" class="form-select" style="max-width:200px;">
       <option value="all">Semua Kategori</option>
-      <option value="Sneakers">Sneakers</option>
-      <option value="Running">Running</option>
-      <option value="Casual">Casual</option>
-      <option value="Sport">Sport</option>
-      <option value="Formal">Formal</option>
-      <option value="Limited Edition">Limited Edition</option>
+      <optgroup label="Casual Shoes">
+        <option value="Casual Shoes">Semua Casual Shoes</option>
+        <option value="Sneakers Casual">Sneakers Casual</option>
+        <option value="Slip-On">Slip-On</option>
+        <option value="Canvas Shoes">Canvas Shoes</option>
+      </optgroup>
+      <optgroup label="Semi Formal Shoes">
+        <option value="Semi Formal Shoes">Semua Semi Formal</option>
+        <option value="Loafers">Loafers</option>
+        <option value="Oxford Style Casual">Oxford Style Casual</option>
+        <option value="Leather Semi Formal">Leather Semi Formal</option>
+      </optgroup>
+      <optgroup label="Limited Edition">
+        <option value="Limited Edition">Limited Edition</option>
+        <option value="Exclusive Release">Exclusive Release</option>
+      </optgroup>
     </select>
   </div>
 
@@ -146,12 +156,22 @@
             <div class="col-md-6">
               <label class="form-label">Kategori</label>
               <select class="form-select" name="category" required>
-                <option value="Sneakers">Sneakers</option>
-                <option value="Running">Running</option>
-                <option value="Casual">Casual</option>
-                <option value="Sport">Sport</option>
-                <option value="Formal">Formal</option>
-                <option value="Limited Edition">Limited Edition</option>
+                <optgroup label="Casual Shoes">
+                  <option value="Casual Shoes">Casual Shoes (Umum)</option>
+                  <option value="Sneakers Casual">Sneakers Casual</option>
+                  <option value="Slip-On">Slip-On</option>
+                  <option value="Canvas Shoes">Canvas Shoes</option>
+                </optgroup>
+                <optgroup label="Semi Formal Shoes">
+                  <option value="Semi Formal Shoes">Semi Formal Shoes (Umum)</option>
+                  <option value="Loafers">Loafers</option>
+                  <option value="Oxford Style Casual">Oxford Style Casual</option>
+                  <option value="Leather Semi Formal">Leather Semi Formal</option>
+                </optgroup>
+                <optgroup label="Limited Edition">
+                  <option value="Limited Edition">Limited Edition</option>
+                  <option value="Exclusive Release">Exclusive Release</option>
+                </optgroup>
               </select>
             </div>
             <div class="col-md-3">
