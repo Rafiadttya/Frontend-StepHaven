@@ -3,7 +3,6 @@
    Shared logic used across every page:
    - LocalStorage data store (products, cart, wishlist, user, theme)
    - Navbar sticky / offcanvas behaviour
-   - Dark mode toggle
    - Toast notification system
    - Scroll-to-top button
    - Cart badge counter
