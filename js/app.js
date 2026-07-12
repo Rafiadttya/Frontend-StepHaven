@@ -18,9 +18,9 @@ const StepHaven = {
 
   /* Increment DATA_VERSION whenever seed data changes significantly
      so returning visitors automatically get the fresh data. */
-  DATA_VERSION: '3',
+  DATA_VERSION: '4',
 
-  KEYS: {
+KEYS: {
     PRODUCTS: 'sh_products',
     CART: 'sh_cart',
     WISHLIST: 'sh_wishlist',
@@ -31,24 +31,17 @@ const StepHaven = {
 
 
   /* -------------------- STORAGE HELPERS -------------------- */
-  getProducts(){
-    /* If stored data version doesn't match current version, re-seed.
-       This ensures category changes propagate to returning users. */
-    const storedVer = localStorage.getItem(this.KEYS.DATA_VER);
-    if(storedVer !== this.DATA_VERSION){
-      const seed = this.seedProducts();
-      localStorage.setItem(this.KEYS.PRODUCTS, JSON.stringify(seed));
-      localStorage.setItem(this.KEYS.DATA_VER, this.DATA_VERSION);
-      return seed;
-    }
-    let data = localStorage.getItem(this.KEYS.PRODUCTS);
-    if(!data){
-      const seed = this.seedProducts();
-      localStorage.setItem(this.KEYS.PRODUCTS, JSON.stringify(seed));
-      return seed;
-    }
-    return JSON.parse(data);
-  },
+getProducts(){
+  let data = localStorage.getItem(this.KEYS.PRODUCTS);
+
+  if(!data){
+    localStorage.setItem(this.KEYS.PRODUCTS, JSON.stringify([]));
+    return [];
+  }
+
+  return JSON.parse(data);
+},
+
   saveProducts(products){
     localStorage.setItem(this.KEYS.PRODUCTS, JSON.stringify(products));
   },

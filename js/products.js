@@ -85,18 +85,36 @@ StepHaven.Products = {
   renderHomeRails(){
     const products = StepHaven.getProducts();
 
+    /* NEW ARRIVALS — sorted by date descending, show latest 4 */
     const newest = document.getElementById('newArrivalsRail');
     if(newest){
-      const sorted = [...products].sort((a,b) => new Date(b.date) - new Date(a.date)).slice(0,4);
-      newest.innerHTML = sorted.map(p => this.cardTemplate(p)).join('');
+      const sorted = [...products]
+        .sort((a,b) => new Date(b.date) - new Date(a.date))
+        .slice(0,4);
+      newest.innerHTML = sorted.length
+        ? sorted.map(p => this.cardTemplate(p)).join('')
+        : '<div class="col-12 empty-state"><i class="bi bi-inbox"></i><p class="text-muted">Belum ada produk.</p></div>';
       this.bindCardEvents(newest);
     }
 
+    /* BEST SELLER — only products explicitly marked bestSeller=true by admin */
     const popular = document.getElementById('popularRail');
     if(popular){
-      const sorted = [...products].sort((a,b) => b.sold - a.sold).slice(0,4);
-      popular.innerHTML = sorted.map(p => this.cardTemplate(p)).join('');
-      this.bindCardEvents(popular);
+      const bestSellers = [...products]
+        .filter(p => p.bestSeller === true)
+        .sort((a,b) => b.sold - a.sold)
+        .slice(0,4);
+      if(bestSellers.length === 0){
+        popular.innerHTML = `
+          <div class="col-12 empty-state">
+            <i class="bi bi-star"></i>
+            <p class="text-muted">Belum ada produk Best Seller.<br>
+            <small>Admin dapat menandai produk sebagai Best Seller di halaman Inventory.</small></p>
+          </div>`;
+      } else {
+        popular.innerHTML = bestSellers.map(p => this.cardTemplate(p)).join('');
+        this.bindCardEvents(popular);
+      }
     }
   },
 

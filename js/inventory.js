@@ -196,6 +196,9 @@ StepHaven.Inventory = {
     // Reset custom color chips
     const chipsWrap = document.getElementById('customColorChips');
     if(chipsWrap) chipsWrap.innerHTML = '';
+    // Reset Best Seller toggle
+    const bsCheck = form.querySelector('[name="bestSeller"]');
+    if(bsCheck) bsCheck.checked = false;
     // Uncheck all preset checkboxes
     form.querySelectorAll('input[name="colorPresets"]').forEach(cb => cb.checked = false);
 
@@ -214,6 +217,9 @@ StepHaven.Inventory = {
       form.elements['stock'].value    = p.stock;
       form.elements['sizes'].value    = p.sizes.join(',');
       form.elements['desc'].value     = p.desc;
+      // Restore Best Seller toggle
+      const bsCheck = form.querySelector('[name="bestSeller"]');
+      if(bsCheck) bsCheck.checked = !!p.bestSeller;
 
       // Restore up to 3 images
       const imgs = p.images || [p.img, p.img2].filter(Boolean);
@@ -285,6 +291,7 @@ StepHaven.Inventory = {
       img:    images[0],          // keep backward-compat primary
       img2:   images[1] || images[0],
       desc:   form.elements['desc'].value.trim(),
+      bestSeller: !!(form.querySelector('[name="bestSeller"]') && form.querySelector('[name="bestSeller"]').checked),
       colors: colors.length ? colors : ['#1A1A1D'],
       rating: 4.5, reviews: 0, sold: 0,
       date:   new Date().toISOString().slice(0,10)
