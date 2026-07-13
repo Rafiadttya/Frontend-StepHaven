@@ -441,14 +441,21 @@ a{ color: inherit; text-decoration: none; }
   aspect-ratio: 1/1;
   display:flex; align-items:center; justify-content:center;
   overflow:hidden;
+  /* Establish stacking context so z-index children work correctly inside */
+  isolation: isolate;
 }
 .product-card .img-wrap img{
   width:100%; height:100%; object-fit:cover;
   transition: transform 400ms ease;
+  /* Explicitly lowest layer so overlays always paint above */
+  position: relative;
+  z-index: 0;
 }
 .product-card:hover .img-wrap img{ transform: scale(1.08); }
 .product-card .tag-corner{
   position:absolute; top:10px; left:10px;
+  /* Above image at all times, including during scale transform */
+  z-index: 2;
   font-family: var(--font-mono);
   font-size: 0.68rem;
   background: var(--color-ink);
@@ -461,12 +468,17 @@ a{ color: inherit; text-decoration: none; }
 .product-card .tag-corner.limited{ background: var(--color-gold); color:#1A1A1D; }
 .fav-btn{
   position:absolute; top:10px; right:10px;
+  /* z-index high enough to always stay on top of the scaled image */
+  z-index: 3;
   width:34px; height:34px; border-radius:50%;
   background: rgba(255,255,255,0.9);
   border: none;
   display:flex; align-items:center; justify-content:center;
   color: var(--color-ink);
+  /* pointer-events: auto ensures click always registers */
+  pointer-events: auto;
   transition: var(--transition);
+  cursor: pointer;
 }
 .fav-btn:hover{ background:#fff; transform: scale(1.1); }
 .fav-btn.active{ color: var(--color-leather); }
