@@ -116,6 +116,9 @@ StepHaven.Products = {
         this.bindCardEvents(popular);
       }
     }
+
+    /* Notify app.js that home rails are ready — so navbar search can attach */
+    document.dispatchEvent(new CustomEvent('homeRailsReady'));
   },
 
   /* -------------------- PRODUCTS PAGE -------------------- */
