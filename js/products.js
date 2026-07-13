@@ -103,7 +103,7 @@ StepHaven.Products = {
       const bestSellers = [...products]
         .filter(p => p.bestSeller === true)
         .sort((a,b) => b.sold - a.sold)
-        .slice(0,4);
+        .slice(0, 8); /* Allow up to 8 so carousel has cards to slide through */
       if(bestSellers.length === 0){
         popular.innerHTML = `
           <div class="col-12 empty-state">
@@ -111,14 +111,66 @@ StepHaven.Products = {
             <p class="text-muted">Belum ada produk Best Seller.<br>
             <small>Admin dapat menandai produk sebagai Best Seller di halaman Inventory.</small></p>
           </div>`;
+        /* Disable nav buttons when no products */
+        const p = document.getElementById('bestsellerPrev');
+        const n = document.getElementById('bestsellerNext');
+        if(p) p.disabled = true;
+        if(n) n.disabled = true;
       } else {
         popular.innerHTML = bestSellers.map(p => this.cardTemplate(p)).join('');
         this.bindCardEvents(popular);
+        /* Init carousel AFTER cards are in the DOM */
+        this.initBestSellerCarousel(bestSellers.length);
       }
     }
 
     /* Notify app.js that home rails are ready — so navbar search can attach */
     document.dispatchEvent(new CustomEvent('homeRailsReady'));
+  },
+
+  /* -------------------- BEST SELLER CAROUSEL -------------------- */
+  initBestSellerCarousel(totalCards){
+    const track   = document.getElementById('popularRail');
+    const prevBtn = document.getElementById('bestsellerPrev');
+    const nextBtn = document.getElementById('bestsellerNext');
+    if(!track || !prevBtn || !nextBtn) return;
+
+    /* Visible cards per viewport width */
+    const perSlide = () => {
+      if(window.innerWidth >= 992) return 4;
+      if(window.innerWidth >= 768) return 3;
+      return 2;
+    };
+
+    let currentStep = 0;
+
+    const maxStep = () => Math.max(0, totalCards - perSlide());
+
+    const update = () => {
+      const cardWidthPct = 100 / perSlide();
+      track.style.transform = `translateX(-${currentStep * cardWidthPct}%)`;
+      prevBtn.disabled = currentStep <= 0;
+      nextBtn.disabled = currentStep >= maxStep();
+    };
+
+    prevBtn.addEventListener('click', () => {
+      if(currentStep > 0){ currentStep--; update(); }
+    });
+    nextBtn.addEventListener('click', () => {
+      if(currentStep < maxStep()){ currentStep++; update(); }
+    });
+
+    /* Re-clamp on resize (debounced 150ms) */
+    let resizeTimer;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => {
+        currentStep = Math.min(currentStep, maxStep());
+        update();
+      }, 150);
+    });
+
+    update(); /* Set initial state */
   },
 
   /* -------------------- PRODUCTS PAGE -------------------- */
@@ -350,9 +402,17 @@ StepHaven.Products = {
     // Colors
     const colorWrap = document.getElementById('colorOptions');
     let selectedColor = product.colors[0];
-    colorWrap.innerHTML = product.colors.map((c,i) => `<span class="color-dot ${i===0?'active':''}" data-color="${c}" style="background:${c}; border:2px solid ${i===0?'var(--color-leather)':'#ddd'}"></span>`).join('');
+    /* Render dots WITHOUT inline border — let CSS .active class control it.
+       The previous inline style="border:..." was overriding the .active CSS rule,
+       which caused the active indicator to never visually move. */
+    colorWrap.innerHTML = product.colors.map((c,i) => `
+      <span class="color-dot ${i===0?'active':''}"
+            data-color="${c}"
+            style="background:${c};"
+            title="${c}"></span>`).join('');
     colorWrap.querySelectorAll('.color-dot').forEach(dot => {
       dot.addEventListener('click', () => {
+        /* Remove active from all, add to clicked */
         colorWrap.querySelectorAll('.color-dot').forEach(d => d.classList.remove('active'));
         dot.classList.add('active');
         selectedColor = dot.dataset.color;

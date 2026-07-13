@@ -161,9 +161,20 @@
         <span class="eyebrow">Favorit Pelanggan</span>
         <h2>Produk Terlaris</h2>
       </div>
-      <a href="products.html?sort=bestseller" class="btn btn-outline-ink btn-sm">Lihat Semua</a>
+      <!-- Prev / Next carousel nav -->
+      <div class="d-flex align-items-center gap-2" id="bestsellerNav">
+        <button class="carousel-arrow-btn" id="bestsellerPrev" aria-label="Sebelumnya" disabled>
+          <i class="bi bi-arrow-left"></i>
+        </button>
+        <button class="carousel-arrow-btn" id="bestsellerNext" aria-label="Berikutnya">
+          <i class="bi bi-arrow-right"></i>
+        </button>
+      </div>
     </div>
-    <div class="row g-4" id="popularRail"></div>
+    <!-- Viewport wrapper for slide animation -->
+    <div class="bestseller-viewport">
+      <div class="row g-4 flex-nowrap bestseller-track" id="popularRail"></div>
+    </div>
   </div>
 </section>
 

@@ -294,7 +294,9 @@ StepHaven.Inventory = {
       bestSeller: !!(form.querySelector('[name="bestSeller"]') && form.querySelector('[name="bestSeller"]').checked),
       colors: colors.length ? colors : ['#1A1A1D'],
       rating: 4.5, reviews: 0, sold: 0,
-      date:   new Date().toISOString().slice(0,10)
+      /* Store full ISO timestamp (not just date) so sort by newest is
+         always accurate even when multiple products are added the same day */
+      date:   new Date().toISOString()
     };
 
     if(this.editingId){

@@ -718,11 +718,76 @@ a{ color: inherit; text-decoration: none; }
 .color-dot{
   width:28px; height:28px; border-radius:50%;
   display:inline-block; margin:4px;
+  /* Use outline (not border) so background color shows fully */
   border: 2px solid transparent;
+  outline: 2px solid transparent;
+  outline-offset: 2px;
   cursor:pointer;
   position:relative;
+  transition: outline-color 150ms ease, transform 150ms ease;
 }
-.color-dot.active{ border-color: var(--color-leather); }
+.color-dot:hover{ transform: scale(1.12); }
+.color-dot.active{
+  /* Leather-colored ring offset from the dot — visible on any dot color */
+  outline-color: var(--color-leather);
+  border-color: transparent;
+}
+
+/* ---------- BEST SELLER CAROUSEL ---------- */
+.bestseller-viewport{
+  overflow: hidden;
+  width: 100%;
+}
+.bestseller-track{
+  /* flex-nowrap keeps all cards in one row; we translate to slide */
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  transition: transform 380ms cubic-bezier(.4,0,.2,1);
+  will-change: transform;
+}
+/* Each card column: fixed width matching Bootstrap col-6/col-md-4/col-lg-3 */
+.bestseller-track > .product-col{
+  flex: 0 0 calc(25% - 12px);   /* 4 per row desktop */
+  max-width: calc(25% - 12px);
+}
+@media (max-width: 991px){
+  .bestseller-track > .product-col{
+    flex: 0 0 calc(33.333% - 11px); /* 3 per row tablet */
+    max-width: calc(33.333% - 11px);
+  }
+}
+@media (max-width: 767px){
+  .bestseller-track > .product-col{
+    flex: 0 0 calc(50% - 8px);  /* 2 per row mobile */
+    max-width: calc(50% - 8px);
+  }
+}
+
+/* Arrow nav buttons */
+.carousel-arrow-btn{
+  width: 38px; height: 38px;
+  border-radius: 50%;
+  border: 1.5px solid var(--color-line);
+  background: var(--color-white);
+  color: var(--color-ink);
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background var(--transition), border-color var(--transition),
+              color var(--transition), transform var(--transition),
+              box-shadow var(--transition);
+}
+.carousel-arrow-btn:hover:not(:disabled){
+  background: var(--color-leather);
+  border-color: var(--color-leather);
+  color: #fff;
+  transform: scale(1.08);
+  box-shadow: 0 4px 14px rgba(181,86,45,0.28);
+}
+.carousel-arrow-btn:disabled{
+  opacity: 0.35;
+  cursor: not-allowed;
+}
 
 /* ---------- SKELETON LOADING ---------- */
 .skeleton{
