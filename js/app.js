@@ -121,6 +121,171 @@ initNavbar(){
     });
   },
 
+    /* ================================================================
+     UI: NAVBAR SEARCH BAR — v2
+     ----------------------------------------------------------------
+     Behaviour:
+     - HOME / any page with #navSearchInput:
+         • Searches ALL products in localStorage (not just visible cards)
+         • Shows dropdown suggestion (thumbnail + name + price) realtime
+         • Enter or click → redirect to products.html?q=keyword
+         • Dropdown closes on outside click or Escape
+     - SHOP (products.html):
+         • On load, reads ?q= from URL → pre-fills both navbar + sidebar
+           inputs and fires the existing Shop filter
+         • Typing in navbar input syncs → sidebar #searchInput → filter runs
+         • Typing in sidebar syncs back → navbar input
+     ================================================================ */
+  initNavbarSearch(){
+    const navInput   = document.getElementById('navSearchInput');
+    const dropdown   = document.getElementById('navSearchDropdown');
+    if(!navInput) return;  // page has no search bar
+
+    const page = (location.pathname.split('/').pop() || 'index.html');
+
+    /* ─────────────────────────────────────────────────────────────
+       SHOP PAGE — sync with existing sidebar #searchInput
+       and auto-apply keyword from URL query string
+    ───────────────────────────────────────────────────────────── */
+    if(page === 'products.html'){
+      const shopInput = document.getElementById('searchInput');
+      if(!shopInput) return;
+
+      /* Read keyword from URL e.g. ?q=loafer */
+      const urlQ = new URLSearchParams(location.search).get('q') || '';
+      if(urlQ){
+        navInput.value  = urlQ;
+        shopInput.value = urlQ;
+        /* Trigger the existing Shop filter (products.js listens to 'input') */
+        shopInput.dispatchEvent(new Event('input', { bubbles: true }));
+      } else {
+        navInput.value = shopInput.value;
+      }
+
+      /* Keep both inputs in sync */
+      navInput.addEventListener('input', () => {
+        shopInput.value = navInput.value;
+        shopInput.dispatchEvent(new Event('input', { bubbles: true }));
+      });
+      shopInput.addEventListener('input', () => {
+        if(document.activeElement !== navInput)
+          navInput.value = shopInput.value;
+      });
+
+      /* Enter on navbar input on Shop page → just run the filter in-place */
+      navInput.addEventListener('keydown', (e) => {
+        if(e.key === 'Enter'){
+          e.preventDefault();
+          shopInput.value = navInput.value;
+          shopInput.dispatchEvent(new Event('input', { bubbles: true }));
+        }
+      });
+      return;  // no dropdown needed on Shop page
+    }
+
+    /* ─────────────────────────────────────────────────────────────
+       ALL OTHER PAGES (incl. HOME) — full suggestion dropdown
+    ───────────────────────────────────────────────────────────── */
+    if(!dropdown) return;
+
+    const MAX_SUGGESTIONS = 8;
+
+    /* Helpers */
+    const formatRp = (num) => 'Rp' + Number(num).toLocaleString('id-ID');
+    const finalPrice = (p) => p.discount > 0
+      ? Math.round(p.price * (1 - p.discount / 100))
+      : p.price;
+    const highlight = (text, kw) => {
+      if(!kw) return text;
+      const re = new RegExp(`(${kw.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')})`, 'gi');
+      return text.replace(re, '<mark style="background:rgba(181,86,45,0.15);color:inherit;padding:0 1px;border-radius:2px;">$1</mark>');
+    };
+
+    /* Build and show dropdown */
+    const showDropdown = (keyword) => {
+      if(!keyword){ closeDropdown(); return; }
+
+      const kw = keyword.toLowerCase();
+      const all = StepHaven.getProducts();
+      const results = all.filter(p =>
+        p.name.toLowerCase().includes(kw)  ||
+        p.brand.toLowerCase().includes(kw) ||
+        (p.category    && p.category.toLowerCase().includes(kw))    ||
+        (p.subCategory && p.subCategory.toLowerCase().includes(kw))
+      ).slice(0, MAX_SUGGESTIONS);
+
+      if(results.length === 0){
+        dropdown.innerHTML = `<div class="nsd-empty"><i class="bi bi-search me-1"></i>Tidak ada produk yang ditemukan.</div>`;
+      } else {
+        dropdown.innerHTML =
+          `<div class="nsd-label">${results.length} produk ditemukan</div>` +
+          results.map(p => `
+            <a class="nsd-item" href="products.html?q=${encodeURIComponent(keyword)}" data-id="${p.id}">
+              ${p.img
+                ? `<img class="nsd-thumb" src="${p.img}" alt="${p.name}" loading="lazy">`
+                : `<div class="nsd-thumb-placeholder"><i class="bi bi-image"></i></div>`}
+              <div class="nsd-info">
+                <span class="nsd-name">${highlight(p.name, keyword)}</span>
+                <div class="nsd-meta">
+                  <span class="nsd-price">${formatRp(finalPrice(p))}</span>
+                  <span class="nsd-cat">${p.subCategory || p.category}</span>
+                </div>
+              </div>
+            </a>`).join('');
+      }
+
+      dropdown.classList.add('open');
+    };
+
+    const closeDropdown = () => {
+      dropdown.classList.remove('open');
+      dropdown.innerHTML = '';
+    };
+
+    /* Redirect to Shop with keyword */
+    const goToShop = (kw) => {
+      if(!kw.trim()) return;
+      location.href = `products.html?q=${encodeURIComponent(kw.trim())}`;
+    };
+
+    /* ── Event listeners ── */
+    navInput.addEventListener('input', () => showDropdown(navInput.value.trim()));
+
+    navInput.addEventListener('keydown', (e) => {
+      if(e.key === 'Enter'){
+        e.preventDefault();
+        closeDropdown();
+        goToShop(navInput.value);
+      }
+      if(e.key === 'Escape'){
+        closeDropdown();
+        navInput.blur();
+      }
+    });
+
+    /* Clicking a suggestion navigates (href handles it), but update input first */
+    dropdown.addEventListener('click', (e) => {
+      const item = e.target.closest('.nsd-item');
+      if(item){
+        e.preventDefault();
+        const kw = navInput.value.trim();
+        closeDropdown();
+        goToShop(kw);
+      }
+    });
+
+    /* Close when clicking outside */
+    document.addEventListener('click', (e) => {
+      if(!navInput.closest('.navbar-search-wrap').contains(e.target)){
+        closeDropdown();
+      }
+    });
+
+    /* Re-open on focus if input has content */
+    navInput.addEventListener('focus', () => {
+      if(navInput.value.trim()) showDropdown(navInput.value.trim());
+    });
+  },
 
   updateCartBadge(){
     const cart = this.getCart();
