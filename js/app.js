@@ -104,7 +104,7 @@ getProducts(){
   },
 
   /* -------------------- UI: NAVBAR -------------------- */
-  initNavbar(){
+initNavbar(){
     const navbar = document.querySelector('.sh-navbar');
     if(!navbar) return;
     const onScroll = () => {
@@ -120,6 +120,7 @@ getProducts(){
       if(link.getAttribute('href') === current) link.classList.add('active');
     });
   },
+
 
   updateCartBadge(){
     const cart = this.getCart();
