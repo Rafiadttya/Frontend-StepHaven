@@ -1,36 +1,25 @@
 /* =========================================================
    STEPHAVEN — orders.js
    =========================================================
-   Shared module for:
-   - Order saving & retrieval  (key: sh_orders)
-   - Automatic stock deduction after checkout
-   - Order status simulation (5 stages, time-based)
-   - Product reviews  (key: sh_reviews)
-   - Dynamic product rating & sold-count computation
-
-   STATUS TIMELINE (demo-friendly durations):
-     0 Menunggu Pembayaran → after   20 s → 1
-     1 Dikemas             → after   50 s → 2
-     2 Dikirim             → after  120 s → 3
-     3 Tiba                → after  240 s → 4
-     4 Selesai             (final)
+   STATUS FLOW (4 stages, Tiba = pesanan diterima):
+     0 Pembayaran Berhasil → after  20 s → 1
+     1 Dikemas             → after  50 s → 2
+     2 Dikirim             → after 120 s → 3
+     3 Tiba                (final active — moves to Riwayat, unlock review)
    ========================================================= */
 
 StepHaven.Orders = {
 
-  /* ── Readable status labels & Bootstrap Icon names ── */
   STATUS_LABELS: [
-    { label: 'Menunggu Pembayaran', icon: 'bi-clock-history',     color: '#C9A85C' },
+    { label: 'Pembayaran Berhasil', icon: 'bi-check-circle-fill', color: '#4C7A4C' },
     { label: 'Dikemas',             icon: 'bi-box-seam',          color: '#1565C0' },
     { label: 'Dikirim',             icon: 'bi-truck',             color: '#6B7156' },
-    { label: 'Tiba',                icon: 'bi-house-check',       color: '#4C7A4C' },
-    { label: 'Selesai',             icon: 'bi-patch-check-fill',  color: '#B5562D' }
+    { label: 'Tiba',                icon: 'bi-house-check',       color: '#B5562D' }
   ],
 
-  /* Milliseconds until auto-advance FROM each status index */
-  STATUS_DURATIONS: [20000, 30000, 70000, 120000],  // 20s, 50s, 2m, 4m total
+  /* ms until auto-advance FROM each status index (0→1, 1→2, 2→3) */
+  STATUS_DURATIONS: [20000, 30000, 70000],  /* 20 s, 50 s total, 2 m total */
 
-  /* ── Keys ── */
   KEY_ORDERS:  'sh_orders',
   KEY_REVIEWS: 'sh_reviews',
 
@@ -58,7 +47,7 @@ StepHaven.Orders = {
       payment,
       total,
       items,            /* [{ id, name, brand, qty, size, color, price, img }] */
-      status: 0,        /* Start at "Menunggu Pembayaran" */
+      status: 0,        /* Start at "Pembayaran Berhasil" — payment confirmed at checkout */
       createdAt: new Date().toISOString(),
       statusHistory: [{ status: 0, at: new Date().toISOString() }],
       reviewed: false
@@ -79,15 +68,14 @@ StepHaven.Orders = {
     let changed   = false;
 
     orders.forEach(order => {
-      if(order.status >= 4) return;  // already final
+      /* Status 3 (Tiba) is the final active status — no further advancement */
+      if(order.status >= 3) return;
 
-      /* Accumulate elapsed time from creation */
       const elapsed = now - new Date(order.createdAt).getTime();
       let threshold = 0;
       for(let s = 0; s < this.STATUS_DURATIONS.length; s++){
         threshold += this.STATUS_DURATIONS[s];
         if(elapsed >= threshold && order.status <= s){
-          /* Advance to s+1 */
           const newStatus = s + 1;
           if(order.status < newStatus){
             order.status = newStatus;
@@ -236,9 +224,9 @@ StepHaven.Orders = {
         <div class="ost-step ${done?'done':''} ${current?'current':''} ${pending?'pending':''}">
           <div class="ost-icon-wrap">
             <div class="ost-icon">
-              ${done    ? '<i class="bi bi-check-lg"></i>'      : ''}
-              ${current ? `<i class="${s.icon}"></i>` : ''}
-              ${pending ? `<i class="${s.icon}"></i>` : ''}
+              ${done    ? '<i class="bi bi-check-lg"></i>'   : ''}
+              ${current ? `<i class="${s.icon}"></i>`        : ''}
+              ${pending ? `<i class="${s.icon}"></i>`        : ''}
             </div>
             ${i < this.STATUS_LABELS.length - 1 ? '<div class="ost-line"></div>' : ''}
           </div>

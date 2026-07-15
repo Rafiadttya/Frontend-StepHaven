@@ -41,21 +41,51 @@ StepHaven.Inventory = {
     document.getElementById('addProductBtn').addEventListener('click', () => this.openModal());
     document.getElementById('productForm').addEventListener('submit', (e) => this.handleSubmit(e));
 
-    /* ---- Image URL live preview ---- */
-    ['img1','img2','img3'].forEach(name => {
-      const input = document.querySelector(`[name="${name}"]`);
-      if(!input) return;
-      const previewWrap = document.getElementById(`${name}Preview`);
-      const previewImg  = previewWrap ? previewWrap.querySelector('img') : null;
-      input.addEventListener('input', () => {
-        const val = input.value.trim();
-        if(val && previewImg){
-          previewImg.src = val;
-          previewWrap.style.display = 'block';
-        } else if(previewWrap){
-          previewWrap.style.display = 'none';
+    /* ---- Image file upload: wire each slot (1, 2, 3) ---- */
+    this._imageBase64 = ['', '', ''];   /* holds Base64 for each slot */
+
+    [1, 2, 3].forEach(slot => {
+      const fileInput   = document.getElementById(`imgFile${slot}`);
+      const previewImg  = document.getElementById(`imgPreviewImg${slot}`);
+      const placeholder = document.getElementById(`imgPlaceholder${slot}`);
+      const errEl       = document.getElementById(`imgError${slot}`);
+      const chooseBtn   = document.querySelector(`.img-choose-btn[data-slot="${slot}"]`);
+      const clearBtn    = document.querySelector(`.img-clear-btn[data-slot="${slot}"]`);
+
+      if(!fileInput) return;
+
+      /* Button → open file picker */
+      chooseBtn.addEventListener('click', () => fileInput.click());
+
+      /* File selected → validate + read as Base64 */
+      fileInput.addEventListener('change', () => {
+        const file = fileInput.files[0];
+        errEl.classList.add('d-none');
+        if(!file){ this._clearImgSlot(slot); return; }
+
+        const allowed = ['image/jpeg','image/jpg','image/png','image/webp'];
+        if(!allowed.includes(file.type)){
+          errEl.textContent = 'Format tidak didukung (JPG, JPEG, PNG, WEBP).';
+          errEl.classList.remove('d-none'); return;
         }
+        if(file.size > 2 * 1024 * 1024){
+          errEl.textContent = 'Ukuran file melebihi 2 MB.';
+          errEl.classList.remove('d-none'); return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          this._imageBase64[slot - 1] = e.target.result;
+          previewImg.src           = e.target.result;
+          previewImg.style.display = 'block';
+          placeholder.style.display= 'none';
+          clearBtn.classList.remove('d-none');
+        };
+        reader.readAsDataURL(file);
       });
+
+      /* Clear button */
+      clearBtn.addEventListener('click', () => this._clearImgSlot(slot));
     });
 
     /* ---- Custom color picker preview + add button ---- */
@@ -102,6 +132,19 @@ StepHaven.Inventory = {
   collectColors(form){
     const presets = [...form.querySelectorAll('input[name="colorPresets"]:checked')].map(el => el.value);
     return [...new Set([...presets, ...this.customColors])];
+  },
+
+  /* ---- Clear a single image slot ---- */
+  _clearImgSlot(slot){
+    this._imageBase64[slot - 1] = '';
+    const previewImg  = document.getElementById(`imgPreviewImg${slot}`);
+    const placeholder = document.getElementById(`imgPlaceholder${slot}`);
+    const clearBtn    = document.querySelector(`.img-clear-btn[data-slot="${slot}"]`);
+    const fileInput   = document.getElementById(`imgFile${slot}`);
+    if(previewImg)  { previewImg.src = ''; previewImg.style.display = 'none'; }
+    if(placeholder)   placeholder.style.display = '';
+    if(clearBtn)      clearBtn.classList.add('d-none');
+    if(fileInput)     fileInput.value = '';
   },
 
   /* ---- Summary cards ---- */
@@ -188,14 +231,11 @@ StepHaven.Inventory = {
     this.customColors = [];
     const form       = document.getElementById('productForm');
     form.reset();
-    // Reset image previews
-    ['img1','img2','img3'].forEach(n => {
-      const wrap = document.getElementById(`${n}Preview`);
-      if(wrap) wrap.style.display = 'none';
-    });
     // Reset custom color chips
     const chipsWrap = document.getElementById('customColorChips');
-    if(chipsWrap) chipsWrap.innerHTML = '';
+    /* Reset image upload slots and Base64 store */
+    this._imageBase64 = ['', '', ''];
+    [1, 2, 3].forEach(s => this._clearImgSlot(s));
     // Reset Best Seller toggle
     const bsCheck = form.querySelector('[name="bestSeller"]');
     if(bsCheck) bsCheck.checked = false;
@@ -221,17 +261,18 @@ StepHaven.Inventory = {
       const bsCheck = form.querySelector('[name="bestSeller"]');
       if(bsCheck) bsCheck.checked = !!p.bestSeller;
 
-      // Restore up to 3 images
+      // Restore up to 3 existing images into upload slot previews
       const imgs = p.images || [p.img, p.img2].filter(Boolean);
-      ['img1','img2','img3'].forEach((name, i) => {
+      [1, 2, 3].forEach((slot, i) => {
         const val = imgs[i] || '';
-        form.elements[name].value = val;
-        const wrap = document.getElementById(`${name}Preview`);
-        const img  = wrap ? wrap.querySelector('img') : null;
-        if(val && img){
-          img.src = val;
-          wrap.style.display = 'block';
-        }
+        if(!val) return;
+        this._imageBase64[i] = val;
+        const previewImg  = document.getElementById(`imgPreviewImg${slot}`);
+        const placeholder = document.getElementById(`imgPlaceholder${slot}`);
+        const clearBtn    = document.querySelector(`.img-clear-btn[data-slot="${slot}"]`);
+        if(previewImg)  { previewImg.src = val; previewImg.style.display = 'block'; }
+        if(placeholder)   placeholder.style.display = 'none';
+        if(clearBtn)      clearBtn.classList.remove('d-none');
       });
 
       // Restore colors: tick presets, push rest to custom
@@ -264,12 +305,10 @@ StepHaven.Inventory = {
     const sizesArr  = form.elements['sizes'].value.split(',').map(s => parseInt(s.trim())).filter(Boolean);
     const colors    = this.collectColors(form);
 
-    // Collect up to 3 image URLs; filter empty strings
-    const imgArr = ['img1','img2','img3']
-      .map(n => form.elements[n].value.trim())
-      .filter(Boolean);
+    // Collect up to 3 Base64 images from upload slots; filter empty
+    const images = this._imageBase64.filter(Boolean);
     const fallback = 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600&q=80';
-    const images   = imgArr.length ? imgArr : [fallback];
+    const finalImages = images.length ? images : [fallback];
 
     const data = {
       name:     form.elements['name'].value.trim(),
@@ -287,9 +326,9 @@ StepHaven.Inventory = {
       discount: parseInt(form.elements['discount'].value) || 0,
       stock:    parseInt(form.elements['stock'].value),
       sizes:    sizesArr.length ? sizesArr : [40,41,42],
-      images,                     // array of up to 3 URLs (new field)
-      img:    images[0],          // keep backward-compat primary
-      img2:   images[1] || images[0],
+      images: finalImages,              // array of up to 3 Base64/URL images
+      img:    finalImages[0],           // keep backward-compat primary
+      img2:   finalImages[1] || finalImages[0],
       desc:   form.elements['desc'].value.trim(),
       bestSeller: !!(form.querySelector('[name="bestSeller"]') && form.querySelector('[name="bestSeller"]').checked),
       colors: colors.length ? colors : ['#1A1A1D'],

@@ -1,6 +1,24 @@
+/* =========================================================
+   STEPHAVEN — app.js
+   Shared logic used across every page:
+   - LocalStorage data store (products, cart, wishlist, user, theme)
+   - Navbar sticky / offcanvas behaviour
+   - Dark mode toggle
+   - Toast notification system
+   - Scroll-to-top button
+   - Cart badge counter
+   - Newsletter form
+   ========================================================= */
 
+/* ---------------------------------------------------------
+   NAMESPACE
+   Everything lives under window.StepHaven so pages can share
+   functions without polluting the global scope too much.
+--------------------------------------------------------- */
 const StepHaven = {
 
+  /* Increment DATA_VERSION whenever seed data changes significantly
+     so returning visitors automatically get the fresh data. */
   DATA_VERSION: '4',
 
   KEYS: {
@@ -15,7 +33,20 @@ const StepHaven = {
   /* -------------------- SEED DATA -------------------- */
   // Used only the first time the site runs (localStorage empty).
   seedProducts(){
-    return [ ];
+    return [
+      { id:'SH-1001', name:'Aerowave Knit', brand:'Velocon', category:'Casual Shoes', subCategory:'Sneakers Casual', price:1299000, discount:15, sizes:[39,40,41,42,43], colors:['#1A1A1D','#B5562D'], stock:24, rating:4.6, reviews:128, sold:340, bestSeller:true,  img:'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600&q=80', img2:'https://images.unsplash.com/photo-1556906781-9a412961c28c?w=600&q=80', desc:'Sneakers kasual knit ringan dengan cushioning responsif, cocok untuk aktivitas harian maupun santai.', date:'2026-06-20' },
+      { id:'SH-1002', name:'Heritage Sneak', brand:'Northfield', category:'Casual Shoes', subCategory:'Sneakers Casual', price:899000, discount:0, sizes:[38,39,40,41,42], colors:['#F7F5F2','#1A1A1D'], stock:12, rating:4.3, reviews:64, sold:210, bestSeller:false, img:'https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=600&q=80', img2:'https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?w=600&q=80', desc:'Sneakers kasual klasik dengan sentuhan kulit premium, tampil effortless setiap hari.', date:'2026-05-02' },
+      { id:'SH-1003', name:'Casual Drift Canvas', brand:'Lumora', category:'Casual Shoes', subCategory:'Canvas Shoes', price:649000, discount:10, sizes:[39,40,41,42], colors:['#6B7156','#1A1A1D'], stock:0, rating:4.1, reviews:39, sold:98, bestSeller:false, img:'https://images.unsplash.com/photo-1525966222134-fcfa99b8ae77?w=600&q=80', img2:'https://images.unsplash.com/photo-1460353581641-37baddab0fa2?w=600&q=80', desc:'Sepatu kanvas breathable serbaguna, nyaman untuk aktivitas sehari-hari dari pagi hingga malam.', date:'2026-04-18' },
+      { id:'SH-1004', name:'Elite Loafer Pro', brand:'Renwick', category:'Semi Formal Shoes', subCategory:'Loafers', price:1499000, discount:20, sizes:[40,41,42,43,44], colors:['#B5562D','#1A1A1D'], stock:8, rating:4.8, reviews:201, sold:512, bestSeller:true,  img:'https://images.unsplash.com/photo-1606813907291-d86efa9b94db?w=600&q=80', img2:'https://images.unsplash.com/photo-1518002171953-a080ee817e1f?w=600&q=80', desc:'Loafer premium yang sempurna antara kenyamanan kasual dan tampilan semi formal elegan.', date:'2026-06-26' },
+      { id:'SH-1005', name:'Oxford Style Classic', brand:'Renwick', category:'Semi Formal Shoes', subCategory:'Oxford Style Casual', price:1099000, discount:0, sizes:[39,40,41,42,43], colors:['#1A1A1D'], stock:15, rating:4.4, reviews:52, sold:140, bestSeller:false, img:'https://images.unsplash.com/photo-1614252369475-531eba835eb1?w=600&q=80', img2:'https://images.unsplash.com/photo-1533867617858-e7b97e060509?w=600&q=80', desc:'Oxford style casual dengan konstruksi kokoh, ideal untuk meeting santai maupun acara semi formal.', date:'2026-03-11' },
+      { id:'SH-1006', name:'Gold Crest LE', brand:'Aurum', category:'Limited Edition', subCategory:'Exclusive Release', price:2599000, discount:5, sizes:[40,41,42,43], colors:['#C9A85C','#1A1A1D'], stock:3, rating:4.9, reviews:18, sold:45, bestSeller:true,  img:'https://images.unsplash.com/photo-1597248881519-db089d3744a3?w=600&q=80', img2:'https://images.unsplash.com/photo-1600185365926-3a2ce3cdb9eb?w=600&q=80', desc:'Edisi terbatas dengan aksen emas dan nomor seri unik di setiap pasang — koleksi eksklusif.', date:'2026-06-28' },
+      { id:'SH-1007', name:'Urban Slip-On', brand:'Lumora', category:'Casual Shoes', subCategory:'Slip-On', price:549000, discount:25, sizes:[38,39,40,41], colors:['#1A1A1D','#E8E2D5'], stock:30, rating:4.0, reviews:71, sold:180, bestSeller:false, img:'https://images.unsplash.com/photo-1463100099107-aa0980c362e6?w=600&q=80', img2:'https://images.unsplash.com/photo-1491553895911-0055eca6402d?w=600&q=80', desc:'Slip-on praktis tanpa tali, mudah dipakai-lepas dengan kenyamanan sepanjang hari.', date:'2026-01-30' },
+      { id:'SH-1008', name:'Leather Semi Derby', brand:'Renwick', category:'Semi Formal Shoes', subCategory:'Leather Semi Formal', price:1349000, discount:0, sizes:[40,41,42,43], colors:['#1A1A1D','#B5562D'], stock:6, rating:4.7, reviews:97, sold:230, bestSeller:true,  img:'https://images.unsplash.com/photo-1556906781-9a412961c28c?w=600&q=80', img2:'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600&q=80', desc:'Derby semi formal berbahan kulit asli dengan finishing premium, tampil profesional di segala suasana.', date:'2026-05-22' },
+      { id:'SH-1009', name:'Derby Noir Leather', brand:'Renwick', category:'Semi Formal Shoes', subCategory:'Leather Semi Formal', price:1249000, discount:0, sizes:[39,40,41,42,43,44], colors:['#1A1A1D'], stock:0, rating:4.2, reviews:33, sold:75, bestSeller:false, img:'https://images.unsplash.com/photo-1533867617858-e7b97e060509?w=600&q=80', img2:'https://images.unsplash.com/photo-1614252369475-531eba835eb1?w=600&q=80', desc:'Leather semi formal dengan siluet ramping dan finishing matte yang anggun.', date:'2025-12-05' },
+      { id:'SH-1010', name:'Featherlight Canvas', brand:'Aurum', category:'Casual Shoes', subCategory:'Canvas Shoes', price:949000, discount:12, sizes:[38,39,40,41,42], colors:['#E8E2D5','#6B7156'], stock:21, rating:4.4, reviews:59, sold:160, bestSeller:false, img:'https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=600&q=80', img2:'https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?w=600&q=80', desc:'Canvas ringan dengan rajutan ventilasi maksimal, kenyamanan sepanjang hari tanpa batas.', date:'2026-06-01' },
+      { id:'SH-1011', name:'Midnight Edition LE', brand:'Aurum', category:'Limited Edition', subCategory:'Exclusive Release', price:2899000, discount:0, sizes:[41,42,43], colors:['#1A1A1D','#C9A85C'], stock:2, rating:5.0, reviews:9, sold:21, bestSeller:false, img:'https://images.unsplash.com/photo-1600185365926-3a2ce3cdb9eb?w=600&q=80', img2:'https://images.unsplash.com/photo-1597248881519-db089d3744a3?w=600&q=80', desc:'Kolaborasi eksklusif bernuansa gelap dengan detail emas — terbatas 200 pasang di dunia.', date:'2026-06-29' },
+      { id:'SH-1012', name:'Classic Loafer Slip', brand:'Northfield', category:'Semi Formal Shoes', subCategory:'Loafers', price:1150000, discount:10, sizes:[39,40,41,42,43], colors:['#B5562D','#1A1A1D'], stock:18, rating:4.5, reviews:42, sold:130, bestSeller:false, img:'https://images.unsplash.com/photo-1539185441755-769473a23570?w=600&q=80', img2:'https://images.unsplash.com/photo-1465453869711-7e174808ace9?w=600&q=80', desc:'Loafer slip-on semi formal dengan material suede lembut, cocok untuk suasana business casual.', date:'2026-02-14' }
+    ];
   },
 
   /* -------------------- STORAGE HELPERS -------------------- */
@@ -431,8 +462,10 @@ const StepHaven = {
             <div class="text-muted" style="font-size:0.75rem;">${user.email || ''}</div>
           </li>
           <li><a class="dropdown-item" href="profile.html"><i class="bi bi-person me-2"></i>Profil Saya</a></li>
+          <li><a class="dropdown-item" href="wishlist.html"><i class="bi bi-heart me-2"></i>Wishlist</a></li>
+          <li><a class="dropdown-item" href="cart.html"><i class="bi bi-bag me-2"></i>Keranjang</a></li>
           ${user.role === 'admin'
-            ? '<li><a class="dropdown-item" href="inventory.html">'
+            ? '<li><a class="dropdown-item" href="inventory.html"><i class="bi bi-speedometer2 me-2"></i>Admin Panel</a></li>'
             : ''}
           <li><hr class="dropdown-divider my-1"></li>
           <li><a class="dropdown-item text-danger btn-logout-nav" href="#"><i class="bi bi-box-arrow-right me-2"></i>Logout</a></li>`;

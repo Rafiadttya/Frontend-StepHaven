@@ -150,12 +150,28 @@
     </div>
   </div>
 
-  <!-- ---- Main content grid ---- -->
+  <!-- ── Status Pesanan section ── -->
+  <div class="mb-4" id="activeOrdersSection">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <div>
+        <span class="eyebrow">Sedang Diproses</span>
+        <h5 class="mb-0">Status Pesanan</h5>
+      </div>
+    </div>
+    <div id="activeOrdersList"></div>
+    <div id="activeOrdersEmpty" class="empty-state py-3 d-none"
+         style="background:var(--color-white);border:1px solid var(--color-line);border-radius:var(--radius-md);">
+      <i class="bi bi-bag-check" style="font-size:2rem;color:var(--color-line);display:block;margin-bottom:8px;"></i>
+      <p class="text-muted mb-0 small">Belum ada pesanan aktif.</p>
+      <p class="text-muted mb-0 small">Pesanan yang sedang diproses akan muncul di sini.</p>
+    </div>
+  </div>
+
+  <!-- ── Main content grid ── -->
   <div class="row g-4">
 
     <!-- LEFT: Profile Info (view & edit) -->
     <div class="col-lg-5">
-
       <!-- VIEW MODE -->
       <div class="filter-box" id="viewMode">
         <div class="d-flex justify-content-between align-items-center mb-3">
@@ -203,8 +219,29 @@
             <textarea class="form-control" name="address" rows="2"></textarea>
           </div>
           <div class="mb-4">
-            <label class="form-label small">URL Foto Profil (opsional)</label>
-            <input type="url" class="form-control" name="avatar" placeholder="https://...">
+            <label class="form-label small">Foto Profil</label>
+            <!-- Hidden file input — triggered by button below -->
+            <input type="file" id="avatarFileInput" name="avatarFile"
+                   accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
+                   style="display:none;">
+            <div class="d-flex align-items-center gap-3 mt-1">
+              <!-- Avatar preview inside edit form -->
+              <div style="width:64px;height:64px;border-radius:50%;overflow:hidden;
+                          border:2px solid var(--color-line);flex-shrink:0;
+                          background:var(--color-sand);display:flex;align-items:center;justify-content:center;">
+                <img id="avatarEditPreview" src="" alt="preview"
+                     style="width:100%;height:100%;object-fit:cover;display:none;">
+                <i class="bi bi-person-fill" id="avatarEditIcon"
+                   style="font-size:1.8rem;color:var(--color-leather);"></i>
+              </div>
+              <div>
+                <button type="button" class="btn btn-outline-ink btn-sm" id="chooseAvatarBtn">
+                  <i class="bi bi-upload me-1"></i>Pilih Foto
+                </button>
+                <div class="text-muted mt-1" style="font-size:0.72rem;">JPG, JPEG, PNG, WEBP maks. 2 MB</div>
+                <div class="text-danger mt-1 d-none" id="avatarError" style="font-size:0.75rem;"></div>
+              </div>
+            </div>
           </div>
           <div class="d-flex gap-2">
             <button type="submit" class="btn btn-leather flex-grow-1"><i class="bi bi-check2 me-1"></i>Simpan</button>
@@ -214,7 +251,6 @@
       </div>
 
     </div>
-
 
     <!-- RIGHT: Order History -->
     <div class="col-lg-7">
@@ -423,15 +459,58 @@ document.addEventListener('DOMContentLoaded', () => {
   const form       = document.getElementById('profileForm');
 
   function openEdit(){
-    // Pre-fill form from current user
     form.elements['name'].value    = user.name || '';
     form.elements['username'].value= user.username || '';
     form.elements['email'].value   = user.email || '';
     form.elements['phone'].value   = user.phone || '';
     form.elements['address'].value = user.address || '';
-    form.elements['avatar'].value  = user.avatar || '';
+
+    /* Restore avatar preview in edit form */
+    const previewImg  = document.getElementById('avatarEditPreview');
+    const previewIcon = document.getElementById('avatarEditIcon');
+    if(user.avatar && user.avatar.trim()){
+      previewImg.src           = user.avatar;
+      previewImg.style.display = 'block';
+      previewIcon.style.display= 'none';
+    } else {
+      previewImg.style.display = 'none';
+      previewIcon.style.display= 'block';
+    }
+
     viewMode.classList.add('d-none');
     editMode.classList.remove('d-none');
+
+    /* File picker trigger */
+    const fileInput   = document.getElementById('avatarFileInput');
+    const chooseBtn   = document.getElementById('chooseAvatarBtn');
+    const errEl       = document.getElementById('avatarError');
+
+    chooseBtn.onclick = () => fileInput.click();
+    fileInput.onchange = () => {
+      const file = fileInput.files[0];
+      errEl.classList.add('d-none');
+      if(!file) return;
+
+      /* Validate type */
+      const allowed = ['image/jpeg','image/jpg','image/png','image/webp'];
+      if(!allowed.includes(file.type)){
+        errEl.textContent = 'Format tidak didukung. Gunakan JPG, JPEG, PNG, atau WEBP.';
+        errEl.classList.remove('d-none'); return;
+      }
+      /* Validate size (2 MB) */
+      if(file.size > 2 * 1024 * 1024){
+        errEl.textContent = 'Ukuran file melebihi 2 MB.';
+        errEl.classList.remove('d-none'); return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        previewImg.src           = e.target.result;
+        previewImg.style.display = 'block';
+        previewIcon.style.display= 'none';
+      };
+      reader.readAsDataURL(file);
+    };
   }
   function closeEdit(){
     editMode.classList.add('d-none');
@@ -456,7 +535,15 @@ document.addEventListener('DOMContentLoaded', () => {
       email:    form.elements['email'].value.trim(),
       phone:    form.elements['phone'].value.trim(),
       address:  form.elements['address'].value.trim(),
-      avatar:   form.elements['avatar'].value.trim()
+      /* Use Base64 from preview if user uploaded a new file,
+         otherwise keep existing avatar */
+      avatar: (() => {
+        const previewImg = document.getElementById('avatarEditPreview');
+        if(previewImg && previewImg.src && previewImg.src.startsWith('data:')){
+          return previewImg.src;  /* Base64 */
+        }
+        return user.avatar || '';
+      })()
     };
     localStorage.setItem(StepHaven.KEYS.USER, JSON.stringify(updated));
     user = updated;
@@ -475,75 +562,113 @@ document.addEventListener('DOMContentLoaded', () => {
     if(!confirm('Hapus seluruh riwayat pesanan? Aksi ini tidak dapat dibatalkan.')) return;
     localStorage.removeItem(StepHaven.Orders.KEY_ORDERS);
     renderView();
-    renderOrders([]);
+    renderAll([]);
     StepHaven.showToast('Riwayat pesanan dihapus', 'info');
   });
 
   /* ─────────────────────────────────────────────────────────
-     RENDER ORDER HISTORY (real orders from LocalStorage)
+     RENDER — split orders into Active (status 0-2) vs
+               Arrived/History (status === 3 = Tiba)
   ───────────────────────────────────────────────────────── */
-  function renderOrders(orders){
-    const list       = document.getElementById('orderList');
-    const empty      = document.getElementById('orderEmptyState');
-    const countLabel = document.getElementById('orderCountLabel');
-    const clearBtn   = document.getElementById('clearOrdersBtn');
+  function renderAll(orders){
+    const activeOrders  = orders.filter(o => o.status < 3);   /* 0-2: still processing */
+    const arrivedOrders = orders.filter(o => o.status >= 3);  /* 3: Tiba → goes to history */
+    renderActiveOrders(activeOrders);
+    renderOrderHistory(arrivedOrders);
+  }
 
-    countLabel.textContent = `${orders.length} pesanan`;
-    clearBtn.style.display = orders.length > 0 ? 'inline-flex' : 'none';
+  /* ── Section: Status Pesanan (active only) ── */
+  function renderActiveOrders(active){
+    const list  = document.getElementById('activeOrdersList');
+    const empty = document.getElementById('activeOrdersEmpty');
+    if(!list) return;
 
-    if(orders.length === 0){
+    if(active.length === 0){
       list.innerHTML = '';
       empty.classList.remove('d-none');
       return;
     }
     empty.classList.add('d-none');
 
-    list.innerHTML = orders.map(order => {
-      const st      = StepHaven.Orders.STATUS_LABELS[order.status] || StepHaven.Orders.STATUS_LABELS[0];
+    list.innerHTML = active.map(order => {
+      const st      = StepHaven.Orders.STATUS_LABELS[order.status];
+      const dateStr = new Date(order.createdAt || Date.now()).toLocaleDateString('id-ID',
+                        { day:'2-digit', month:'short', year:'numeric' });
+      const firstImg = (order.items||[])[0]?.img || '';
+
+      return `
+      <div class="filter-box mb-3 p-3" data-active-inv="${order.invNumber}">
+        <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-2">
+          <div>
+            <div class="fw-semibold font-mono small">${order.invNumber}</div>
+            <div class="text-muted" style="font-size:0.78rem;">${dateStr} · ${order.payment || '—'}</div>
+          </div>
+          <div class="text-end">
+            <div class="fw-bold font-mono small">${StepHaven.formatRupiah(order.total || 0)}</div>
+            <span class="badge" style="background:${st.color};">${st.label}</span>
+          </div>
+        </div>
+        ${StepHaven.Orders.renderStatusTimeline(order)}
+      </div>`;
+    }).join('');
+  }
+
+  /* ── Section: Riwayat Pesanan (Tiba = status 3) ── */
+  function renderOrderHistory(arrived){
+    const list       = document.getElementById('orderList');
+    const empty      = document.getElementById('orderEmptyState');
+    const countLabel = document.getElementById('orderCountLabel');
+    const clearBtn   = document.getElementById('clearOrdersBtn');
+
+    countLabel.textContent = `${arrived.length} pesanan`;
+    clearBtn.style.display = arrived.length > 0 ? 'inline-flex' : 'none';
+
+    if(arrived.length === 0){
+      list.innerHTML = '';
+      empty.classList.remove('d-none');
+      return;
+    }
+    empty.classList.add('d-none');
+
+    list.innerHTML = arrived.map(order => {
       const dateStr = new Date(order.createdAt || Date.now()).toLocaleDateString('id-ID',
                         { day:'2-digit', month:'short', year:'numeric' });
       const itemsPreview = (order.items || []).slice(0,2).map(i =>
-        `<img src="${i.img || ''}" alt="${i.name}" style="width:38px;height:38px;object-fit:cover;border-radius:6px;border:1px solid var(--color-line);">`
+        `<img src="${i.img || ''}" alt="${i.name}"
+              style="width:38px;height:38px;object-fit:cover;border-radius:6px;border:1px solid var(--color-line);">`
       ).join('') + ((order.items||[]).length > 2
-        ? `<span class="text-muted small ms-1">+${order.items.length-2} lainnya</span>` : '');
+        ? `<span class="text-muted small ms-1">+${(order.items.length-2)} lainnya</span>` : '');
 
-      const isSelesai   = order.status === 4;
-      const reviewBtn   = (isSelesai && !order.reviewed)
+      /* "Beri Ulasan" button — only after Tiba, not yet reviewed */
+      const reviewBtn = !order.reviewed
         ? `<button class="btn btn-leather btn-sm mt-2 review-trigger"
-              data-order='${JSON.stringify({
-                invNumber: order.invNumber,
-                items: order.items ? order.items.slice(0,1) : []
-              })}'
-            ><i class="bi bi-star me-1"></i>Beri Ulasan</button>` : '';
-      const reviewedBadge = (isSelesai && order.reviewed)
-        ? `<span class="stock-pill in mt-2 d-inline-block"><i class="bi bi-check-circle me-1"></i>Sudah Diulas</span>` : '';
+              data-order='${JSON.stringify({ invNumber: order.invNumber, items: (order.items||[]).slice(0,1) })}'
+            ><i class="bi bi-star me-1"></i>Beri Ulasan</button>`
+        : `<span class="stock-pill in mt-2 d-inline-block">
+              <i class="bi bi-check-circle me-1"></i>Sudah Diulas</span>`;
 
       return `
-      <div class="order-history-row mb-4 pb-3" style="border-bottom:1px solid var(--color-line);" data-inv="${order.invNumber}">
+      <div class="order-history-row mb-4 pb-3" style="border-bottom:1px solid var(--color-line);"
+           data-inv="${order.invNumber}">
         <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
           <div>
             <div class="fw-semibold font-mono small">${order.invNumber}</div>
             <div class="text-muted" style="font-size:0.78rem;">${dateStr} · ${order.payment || '—'}</div>
-            <div class="d-flex align-items-center gap-2 mt-1">
-              ${itemsPreview}
-            </div>
+            <div class="d-flex align-items-center gap-2 mt-1">${itemsPreview}</div>
           </div>
           <div class="text-end">
             <div class="fw-bold font-mono">${StepHaven.formatRupiah(order.total || 0)}</div>
-            <span class="badge mt-1" style="background:${st.color};">${st.label}</span>
-            ${reviewBtn}
-            ${reviewedBadge}
+            <span class="badge" style="background:var(--color-success);">Tiba</span>
+            <div>${reviewBtn}</div>
           </div>
         </div>
-        ${StepHaven.Orders.renderStatusTimeline(order)}
       </div>`;
     }).join('');
 
     /* Bind review buttons */
     list.querySelectorAll('.review-trigger').forEach(btn => {
       btn.addEventListener('click', () => {
-        const data = JSON.parse(btn.dataset.order);
-        openReviewModal(data);
+        openReviewModal(JSON.parse(btn.dataset.order));
       });
     });
   }
@@ -552,90 +677,70 @@ document.addEventListener('DOMContentLoaded', () => {
      REVIEW MODAL
   ───────────────────────────────────────────────────────── */
   function openReviewModal(orderData){
-    /* Pick first item from the order for reviewing */
     const item    = (orderData.items || [])[0];
     const prodId  = item ? item.id   : '';
     const prodName= item ? item.name : 'Produk';
 
-    /* Inject modal HTML */
     const wrap = document.getElementById('reviewModalWrap');
     wrap.innerHTML = StepHaven.Orders.reviewModalHTML(
       { invNumber: orderData.invNumber }, prodId, prodName
     );
 
-    /* Star picker interaction */
     let chosenRating = 0;
     wrap.querySelectorAll('.star-btn').forEach(star => {
       star.addEventListener('mouseenter', () => {
         const val = parseInt(star.dataset.val);
         wrap.querySelectorAll('.star-btn').forEach(s =>
-          s.classList.toggle('lit', parseInt(s.dataset.val) <= val)
-        );
+          s.classList.toggle('lit', parseInt(s.dataset.val) <= val));
       });
       star.addEventListener('mouseleave', () => {
         wrap.querySelectorAll('.star-btn').forEach(s =>
-          s.classList.toggle('lit', parseInt(s.dataset.val) <= chosenRating)
-        );
+          s.classList.toggle('lit', parseInt(s.dataset.val) <= chosenRating));
       });
       star.addEventListener('click', () => {
         chosenRating = parseInt(star.dataset.val);
         document.getElementById('reviewRating').value = chosenRating;
         wrap.querySelectorAll('.star-btn').forEach(s => {
-          const icon = s.querySelector('i');
           s.classList.toggle('lit', parseInt(s.dataset.val) <= chosenRating);
-          icon.className = parseInt(s.dataset.val) <= chosenRating ? 'bi bi-star-fill' : 'bi bi-star';
+          s.querySelector('i').className = parseInt(s.dataset.val) <= chosenRating ? 'bi bi-star-fill' : 'bi bi-star';
         });
         document.getElementById('ratingError').classList.add('d-none');
       });
     });
 
-    /* Submit */
     wrap.querySelector('#submitReviewBtn').addEventListener('click', () => {
-      const form    = wrap.querySelector('#reviewForm');
-      const ratingEl= document.getElementById('reviewRating');
-      if(!chosenRating){
-        document.getElementById('ratingError').classList.remove('d-none');
-        return;
-      }
+      const form = wrap.querySelector('#reviewForm');
+      if(!chosenRating){ document.getElementById('ratingError').classList.remove('d-none'); return; }
       if(!form.checkValidity()){ form.classList.add('was-validated'); return; }
-
       const ok = StepHaven.Orders.addReview({
-        productId: prodId,
-        orderId:   orderData.invNumber,
-        rating:    chosenRating,
-        name:      form.elements['name'].value,
-        comment:   form.elements['comment'].value
+        productId: prodId, orderId: orderData.invNumber,
+        rating: chosenRating, name: form.elements['name'].value,
+        comment: form.elements['comment'].value
       });
-
       if(ok){
         bootstrap.Modal.getInstance(wrap.querySelector('#reviewModal')).hide();
-        /* Re-render orders to show "Sudah Diulas" badge */
-        const orders = StepHaven.Orders.advanceAllStatuses();
-        renderOrders(orders);
+        const updated = StepHaven.Orders.advanceAllStatuses();
+        renderAll(updated);
       }
     });
 
-    /* Show modal */
     new bootstrap.Modal(wrap.querySelector('#reviewModal')).show();
   }
 
   /* ─────────────────────────────────────────────────────────
-     INITIAL ORDER LOAD + LIVE STATUS TIMER
+     INITIAL LOAD + LIVE TIMER
   ───────────────────────────────────────────────────────── */
-  // Advance statuses on load (catch-up from elapsed time)
   const orders = StepHaven.Orders.advanceAllStatuses();
-  renderOrders(orders);
+  renderAll(orders);
 
-  // Update stats with real order data
   document.getElementById('statOrders').textContent = orders.length;
   const totalItemsBought = orders.reduce((s,o) =>
     s + (o.items || []).reduce((ss,i) => ss + i.qty, 0), 0);
   document.getElementById('statItems').textContent = totalItemsBought;
 
-  // Live status ticker — re-render orders every 5 seconds
+  /* Live ticker — re-render every 5 s so status advances without refresh */
   StepHaven.Orders.startStatusTimer(() => {
-    const live = StepHaven.Orders.getOrders();
-    renderOrders(live);
+    renderAll(StepHaven.Orders.getOrders());
   });
 
 });
