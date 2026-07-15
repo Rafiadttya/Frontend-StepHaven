@@ -272,6 +272,7 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
 <script src="js/app.js"></script>
+<script src="js/orders.js"></script>
 <script>
 /* =========================================================
    Checkout page logic (inline — page-specific, not reused
@@ -362,15 +363,49 @@ document.addEventListener('DOMContentLoaded', () => {
     }else{
       paymentDetail = 'Bayar di Tempat (COD)';
     }
+    
+    const invNumber = 'INV-' + Date.now().toString().slice(-8);
 
-    document.getElementById('invNumber').textContent = 'INV-' + Date.now().toString().slice(-8);
-    document.getElementById('invName').textContent = form.fullname.value;
-    document.getElementById('invEmail').textContent = form.email.value;
+    // Build order items array with full product details for profile history
+    const orderItems = cart.map(item => {
+      const p = StepHaven.getProductById(item.id);
+      if(!p) return null;
+      const price = p.discount > 0 ? Math.round(p.price * (1 - p.discount/100)) : p.price;
+      return {
+        id:    p.id,
+        name:  p.name,
+        brand: p.brand,
+        qty:   item.qty,
+        size:  item.size,
+        color: item.color,
+        price,
+        img:   p.img
+      };
+    }).filter(Boolean);
+
+    // ── Save order to LocalStorage ──
+    StepHaven.Orders.createOrder({
+      invNumber,
+      customerName: form.fullname.value,
+      email:        form.email.value,
+      address:      form.address.value + ', ' + form.postal.value,
+      payment:      paymentDetail,
+      total,
+      items:        orderItems
+    });
+
+    // ── Deduct stock for each purchased product ──
+    StepHaven.Orders.deductStock(orderItems.map(i => ({ id: i.id, qty: i.qty })));
+
+    // ── Populate invoice view ──
+    document.getElementById('invNumber').textContent  = invNumber;
+    document.getElementById('invName').textContent    = form.fullname.value;
+    document.getElementById('invEmail').textContent   = form.email.value;
     document.getElementById('invAddress').textContent = form.address.value + ', ' + form.postal.value;
     document.getElementById('invPayment').textContent = paymentDetail;
-    document.getElementById('invDate').textContent = new Date().toLocaleDateString('id-ID', { year:'numeric', month:'long', day:'numeric' });
+    document.getElementById('invDate').textContent    = new Date().toLocaleDateString('id-ID', { year:'numeric', month:'long', day:'numeric' });
     document.getElementById('invItemsList').innerHTML = listEl.innerHTML;
-    document.getElementById('invTotal').textContent = StepHaven.formatRupiah(total);
+    document.getElementById('invTotal').textContent   = StepHaven.formatRupiah(total);
 
     document.getElementById('checkoutFormView').classList.add('d-none');
     document.getElementById('invoiceView').classList.remove('d-none');
@@ -384,3 +419,4 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 </body>
 </html>
+

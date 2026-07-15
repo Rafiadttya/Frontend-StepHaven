@@ -110,30 +110,12 @@
 
   <!-- ============ REVIEWS ============ -->
   <div class="divider-dashed"></div>
-  <h3 class="mb-4">Ulasan Pelanggan</h3>
-  <div class="row g-4 mb-4">
-    <div class="col-md-4">
-      <div class="testimonial-card">
-        <div class="stars mb-2">★★★★★</div>
-        <p class="mb-2">Bahan nyaman dipakai seharian, ukurannya pas sesuai chart.</p>
-        <strong class="small">— Andi K.</strong>
-      </div>
-    </div>
-    <div class="col-md-4">
-      <div class="testimonial-card">
-        <div class="stars mb-2">★★★★☆</div>
-        <p class="mb-2">Pengiriman cepat, packing rapi. Warna sesuai foto.</p>
-        <strong class="small">— Putri S.</strong>
-      </div>
-    </div>
-    <div class="col-md-4">
-      <div class="testimonial-card">
-        <div class="stars mb-2">★★★★★</div>
-        <p class="mb-2">Kualitas premium, worth the price. Bakal beli lagi.</p>
-        <strong class="small">— Hendra W.</strong>
-      </div>
-    </div>
+  <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+    <h3 class="mb-0">Ulasan Pelanggan</h3>
+    <span class="text-muted small" id="reviewCountInfo"></span>
   </div>
+  <!-- Dynamic reviews injected by orders.js -->
+  <div id="dynamicReviews" class="mb-4"></div>
 
   <!-- ============ RELATED PRODUCTS ============ -->
   <div class="divider-dashed"></div>
@@ -207,7 +189,79 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
 <script src="js/app.js"></script>
+<script src="js/orders.js"></script>
 <script src="js/products.js"></script>
+<script>
+/* =========================================================
+   detail.html — Render real reviews + live sold/rating stats
+   Runs AFTER products.js initDetailPage() has set product info.
+========================================================= */
+document.addEventListener('DOMContentLoaded', () => {
+  const params    = new URLSearchParams(location.search);
+  const productId = params.get('id');
+  if(!productId) return;
+
+  /* ── Render reviews from LocalStorage ── */
+  function renderReviews(){
+    const wrap      = document.getElementById('dynamicReviews');
+    const infoLabel = document.getElementById('reviewCountInfo');
+    if(!wrap) return;
+
+    const reviews = StepHaven.Orders.getProductReviews(productId);
+
+    if(reviews.length === 0){
+      wrap.innerHTML = `<div class="empty-state py-3">
+        <i class="bi bi-chat-left-text" style="font-size:2rem;color:var(--color-line);display:block;margin-bottom:8px;"></i>
+        <p class="text-muted mb-0 small">Belum ada ulasan. Jadilah yang pertama!</p>
+      </div>`;
+      if(infoLabel) infoLabel.textContent = '0 ulasan';
+      return;
+    }
+
+    if(infoLabel) infoLabel.textContent = `${reviews.length} ulasan`;
+
+    wrap.innerHTML = reviews.map(r => {
+      const dateStr = new Date(r.createdAt).toLocaleDateString('id-ID',
+        { day:'2-digit', month:'short', year:'numeric' });
+      const stars = StepHaven.renderStars(r.rating);
+      return `
+      <div class="review-card">
+        <div class="d-flex justify-content-between align-items-center mb-1">
+          <div class="d-flex align-items-center gap-2">
+            <span class="review-stars">${stars}</span>
+            <span class="review-name">${r.name}</span>
+          </div>
+          <span class="review-date">${dateStr}</span>
+        </div>
+        <p class="review-comment mb-0">${r.comment}</p>
+      </div>`;
+    }).join('');
+  }
+
+  /* ── Update live product stats (sold + reviews count + rating) ── */
+  function refreshStats(){
+    const product = StepHaven.getProductById(productId);
+    if(!product) return;
+
+    const reviews   = StepHaven.Orders.getProductReviews(productId);
+    const reviewCnt = reviews.length;
+    const avg       = reviewCnt
+      ? Math.round(reviews.reduce((s,r) => s + r.rating, 0) / reviewCnt * 10) / 10
+      : product.rating;
+
+    /* Update star row in the detail header */
+    const starsEl = document.getElementById('detailStars');
+    if(starsEl){
+      starsEl.innerHTML =
+        StepHaven.renderStars(avg) +
+        ` <span class="text-muted ms-1" style="font-size:0.85rem;">(${reviewCnt} ulasan · terjual ${product.sold || 0})</span>`;
+    }
+  }
+
+  renderReviews();
+  refreshStats();
+});
+</script>
 <script>
   // Mirror brand into breadcrumb label too
   document.addEventListener('DOMContentLoaded', () => {

@@ -215,12 +215,18 @@
 
     </div>
 
+
     <!-- RIGHT: Order History -->
     <div class="col-lg-7">
       <div class="filter-box">
         <div class="d-flex justify-content-between align-items-center mb-3">
           <h5 class="mb-0">Riwayat Pesanan</h5>
-          <span class="text-muted small" id="orderCountLabel"></span>
+          <div class="d-flex align-items-center gap-2">
+            <span class="text-muted small" id="orderCountLabel"></span>
+            <button class="btn btn-sm btn-outline-danger" id="clearOrdersBtn" style="display:none;">
+              <i class="bi bi-trash3 me-1"></i>Hapus Riwayat
+            </button>
+          </div>
         </div>
 
         <div id="orderList"></div>
@@ -235,6 +241,9 @@
 
   </div>
 </div>
+
+<!-- ============ REVIEW MODAL (injected by JS) ============ -->
+<div id="reviewModalWrap"></div>
 
 <!-- ============ FOOTER ============ -->
 <footer class="sh-footer">
@@ -302,6 +311,7 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
 <script src="js/app.js"></script>
+<script src="js/orders.js"></script>
 <script>
 /* =========================================================
    profile.html — Inline page-specific logic
@@ -455,21 +465,179 @@ document.addEventListener('DOMContentLoaded', () => {
     StepHaven.showToast('Profil berhasil diperbarui', 'success');
   });
 
-  /* --- Initial render --- */
+  /* ── Initial render ── */
   renderView();
 
-  /* --- Record a demo order so history isn't always empty (runs once) --- */
-  const orders = JSON.parse(localStorage.getItem('sh_orders') || '[]');
-  if(orders.length === 0){
-    const demo = [
-      { invNumber:'INV-20260601', date:'1 Juni 2026', payment:'Transfer Bank — BCA', total:1324000, itemCount:1 },
-      { invNumber:'INV-20260615', date:'15 Juni 2026', payment:'E-Wallet — GoPay',   total:2598000, itemCount:2 }
-    ];
-    localStorage.setItem('sh_orders', JSON.stringify(demo));
-    renderOrders(demo);
-    document.getElementById('statOrders').textContent = demo.length;
-    document.getElementById('statItems').textContent  = demo.reduce((s,o) => s + o.itemCount, 0);
+  /* ─────────────────────────────────────────────────────────
+     HAPUS RIWAYAT button
+  ───────────────────────────────────────────────────────── */
+  document.getElementById('clearOrdersBtn').addEventListener('click', () => {
+    if(!confirm('Hapus seluruh riwayat pesanan? Aksi ini tidak dapat dibatalkan.')) return;
+    localStorage.removeItem(StepHaven.Orders.KEY_ORDERS);
+    renderView();
+    renderOrders([]);
+    StepHaven.showToast('Riwayat pesanan dihapus', 'info');
+  });
+
+  /* ─────────────────────────────────────────────────────────
+     RENDER ORDER HISTORY (real orders from LocalStorage)
+  ───────────────────────────────────────────────────────── */
+  function renderOrders(orders){
+    const list       = document.getElementById('orderList');
+    const empty      = document.getElementById('orderEmptyState');
+    const countLabel = document.getElementById('orderCountLabel');
+    const clearBtn   = document.getElementById('clearOrdersBtn');
+
+    countLabel.textContent = `${orders.length} pesanan`;
+    clearBtn.style.display = orders.length > 0 ? 'inline-flex' : 'none';
+
+    if(orders.length === 0){
+      list.innerHTML = '';
+      empty.classList.remove('d-none');
+      return;
+    }
+    empty.classList.add('d-none');
+
+    list.innerHTML = orders.map(order => {
+      const st      = StepHaven.Orders.STATUS_LABELS[order.status] || StepHaven.Orders.STATUS_LABELS[0];
+      const dateStr = new Date(order.createdAt || Date.now()).toLocaleDateString('id-ID',
+                        { day:'2-digit', month:'short', year:'numeric' });
+      const itemsPreview = (order.items || []).slice(0,2).map(i =>
+        `<img src="${i.img || ''}" alt="${i.name}" style="width:38px;height:38px;object-fit:cover;border-radius:6px;border:1px solid var(--color-line);">`
+      ).join('') + ((order.items||[]).length > 2
+        ? `<span class="text-muted small ms-1">+${order.items.length-2} lainnya</span>` : '');
+
+      const isSelesai   = order.status === 4;
+      const reviewBtn   = (isSelesai && !order.reviewed)
+        ? `<button class="btn btn-leather btn-sm mt-2 review-trigger"
+              data-order='${JSON.stringify({
+                invNumber: order.invNumber,
+                items: order.items ? order.items.slice(0,1) : []
+              })}'
+            ><i class="bi bi-star me-1"></i>Beri Ulasan</button>` : '';
+      const reviewedBadge = (isSelesai && order.reviewed)
+        ? `<span class="stock-pill in mt-2 d-inline-block"><i class="bi bi-check-circle me-1"></i>Sudah Diulas</span>` : '';
+
+      return `
+      <div class="order-history-row mb-4 pb-3" style="border-bottom:1px solid var(--color-line);" data-inv="${order.invNumber}">
+        <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+          <div>
+            <div class="fw-semibold font-mono small">${order.invNumber}</div>
+            <div class="text-muted" style="font-size:0.78rem;">${dateStr} · ${order.payment || '—'}</div>
+            <div class="d-flex align-items-center gap-2 mt-1">
+              ${itemsPreview}
+            </div>
+          </div>
+          <div class="text-end">
+            <div class="fw-bold font-mono">${StepHaven.formatRupiah(order.total || 0)}</div>
+            <span class="badge mt-1" style="background:${st.color};">${st.label}</span>
+            ${reviewBtn}
+            ${reviewedBadge}
+          </div>
+        </div>
+        ${StepHaven.Orders.renderStatusTimeline(order)}
+      </div>`;
+    }).join('');
+
+    /* Bind review buttons */
+    list.querySelectorAll('.review-trigger').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const data = JSON.parse(btn.dataset.order);
+        openReviewModal(data);
+      });
+    });
   }
+
+  /* ─────────────────────────────────────────────────────────
+     REVIEW MODAL
+  ───────────────────────────────────────────────────────── */
+  function openReviewModal(orderData){
+    /* Pick first item from the order for reviewing */
+    const item    = (orderData.items || [])[0];
+    const prodId  = item ? item.id   : '';
+    const prodName= item ? item.name : 'Produk';
+
+    /* Inject modal HTML */
+    const wrap = document.getElementById('reviewModalWrap');
+    wrap.innerHTML = StepHaven.Orders.reviewModalHTML(
+      { invNumber: orderData.invNumber }, prodId, prodName
+    );
+
+    /* Star picker interaction */
+    let chosenRating = 0;
+    wrap.querySelectorAll('.star-btn').forEach(star => {
+      star.addEventListener('mouseenter', () => {
+        const val = parseInt(star.dataset.val);
+        wrap.querySelectorAll('.star-btn').forEach(s =>
+          s.classList.toggle('lit', parseInt(s.dataset.val) <= val)
+        );
+      });
+      star.addEventListener('mouseleave', () => {
+        wrap.querySelectorAll('.star-btn').forEach(s =>
+          s.classList.toggle('lit', parseInt(s.dataset.val) <= chosenRating)
+        );
+      });
+      star.addEventListener('click', () => {
+        chosenRating = parseInt(star.dataset.val);
+        document.getElementById('reviewRating').value = chosenRating;
+        wrap.querySelectorAll('.star-btn').forEach(s => {
+          const icon = s.querySelector('i');
+          s.classList.toggle('lit', parseInt(s.dataset.val) <= chosenRating);
+          icon.className = parseInt(s.dataset.val) <= chosenRating ? 'bi bi-star-fill' : 'bi bi-star';
+        });
+        document.getElementById('ratingError').classList.add('d-none');
+      });
+    });
+
+    /* Submit */
+    wrap.querySelector('#submitReviewBtn').addEventListener('click', () => {
+      const form    = wrap.querySelector('#reviewForm');
+      const ratingEl= document.getElementById('reviewRating');
+      if(!chosenRating){
+        document.getElementById('ratingError').classList.remove('d-none');
+        return;
+      }
+      if(!form.checkValidity()){ form.classList.add('was-validated'); return; }
+
+      const ok = StepHaven.Orders.addReview({
+        productId: prodId,
+        orderId:   orderData.invNumber,
+        rating:    chosenRating,
+        name:      form.elements['name'].value,
+        comment:   form.elements['comment'].value
+      });
+
+      if(ok){
+        bootstrap.Modal.getInstance(wrap.querySelector('#reviewModal')).hide();
+        /* Re-render orders to show "Sudah Diulas" badge */
+        const orders = StepHaven.Orders.advanceAllStatuses();
+        renderOrders(orders);
+      }
+    });
+
+    /* Show modal */
+    new bootstrap.Modal(wrap.querySelector('#reviewModal')).show();
+  }
+
+  /* ─────────────────────────────────────────────────────────
+     INITIAL ORDER LOAD + LIVE STATUS TIMER
+  ───────────────────────────────────────────────────────── */
+  // Advance statuses on load (catch-up from elapsed time)
+  const orders = StepHaven.Orders.advanceAllStatuses();
+  renderOrders(orders);
+
+  // Update stats with real order data
+  document.getElementById('statOrders').textContent = orders.length;
+  const totalItemsBought = orders.reduce((s,o) =>
+    s + (o.items || []).reduce((ss,i) => ss + i.qty, 0), 0);
+  document.getElementById('statItems').textContent = totalItemsBought;
+
+  // Live status ticker — re-render orders every 5 seconds
+  StepHaven.Orders.startStatusTimer(() => {
+    const live = StepHaven.Orders.getOrders();
+    renderOrders(live);
+  });
+
 });
 </script>
 </body>
