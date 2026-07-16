@@ -137,4 +137,4 @@ StepHaven.Cart = {
   }
 };
 
-document.addEventListener('DOMContentLoaded', () => StepHaven.Cart.init());
+document.addEventListener('stephavenReady', () => StepHaven.Cart.init());

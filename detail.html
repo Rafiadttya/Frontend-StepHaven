@@ -197,7 +197,7 @@
    detail.html — Render real reviews + live sold/rating stats
    Runs AFTER products.js initDetailPage() has set product info.
 ========================================================= */
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('stephavenReady', () => {
   const params    = new URLSearchParams(location.search);
   const productId = params.get('id');
   if(!productId) return;

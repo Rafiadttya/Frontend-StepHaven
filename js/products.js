@@ -466,7 +466,7 @@ StepHaven.Products = {
   }
 };
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('stephavenReady', () => {
   StepHaven.Products.renderHomeRails();
   StepHaven.Products.initProductsPage();
   StepHaven.Products.initDetailPage();

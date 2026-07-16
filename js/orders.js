@@ -111,7 +111,7 @@ StepHaven.Orders = {
    * items: [{ id, qty }]
    * Never allows stock to go below 0.
    */
-  deductStock(items){
+  async deductStock(items){
     const products = StepHaven.getProducts();
     let changed = false;
 
@@ -119,13 +119,15 @@ StepHaven.Orders = {
       const prod = products.find(p => p.id === item.id);
       if(prod){
         prod.stock = Math.max(0, prod.stock - item.qty);
-        /* Increment sold counter */
-        prod.sold = (prod.sold || 0) + item.qty;
+        prod.sold  = (prod.sold || 0) + item.qty;
         changed = true;
       }
     });
 
-    if(changed) StepHaven.saveProducts(products);
+    if(changed){
+      try { await StepHaven.saveProducts(products); }
+      catch(err){ console.error('[Orders] deductStock save failed:', err); }
+    }
   },
 
   /* =========================================================
@@ -187,7 +189,7 @@ StepHaven.Orders = {
    * Recalculate and save average rating for a product
    * based on all reviews in LocalStorage.
    */
-  recalcProductRating(productId){
+  async recalcProductRating(productId){
     const productReviews = this.getProductReviews(productId);
     if(!productReviews.length) return;
 
@@ -197,7 +199,8 @@ StepHaven.Orders = {
     if(prod){
       prod.rating  = Math.round(avg * 10) / 10;
       prod.reviews = productReviews.length;
-      StepHaven.saveProducts(products);
+      try { await StepHaven.saveProducts(products); }
+      catch(err){ console.error('[Orders] recalcRating save failed:', err); }
     }
   },
 

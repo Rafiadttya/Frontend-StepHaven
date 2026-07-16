@@ -292,7 +292,7 @@ StepHaven.Inventory = {
   },
 
   /* ---- Handle form submit (add or update) ---- */
-  handleSubmit(e){
+  async handleSubmit(e){
     e.preventDefault();
     const form = e.target;
 
@@ -310,10 +310,10 @@ StepHaven.Inventory = {
     const fallback = 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600&q=80';
     const finalImages = images.length ? images : [fallback];
 
-    const data = {
-      name:     form.elements['name'].value.trim(),
-      brand:    form.elements['brand'].value.trim(),
-      /* Store the selected value as subCategory; derive parent automatically */
+    /* Fields that apply to both Add and Edit */
+    const sharedData = {
+      name:        form.elements['name'].value.trim(),
+      brand:       form.elements['brand'].value.trim(),
       category: (() => {
         const v = form.elements['category'].value;
         if(['Sneakers Casual','Slip-On','Canvas Shoes','Casual Shoes'].includes(v)) return 'Casual Shoes';
@@ -322,47 +322,68 @@ StepHaven.Inventory = {
         return v;
       })(),
       subCategory: form.elements['category'].value,
-      price:    parseInt(form.elements['price'].value),
-      discount: parseInt(form.elements['discount'].value) || 0,
-      stock:    parseInt(form.elements['stock'].value),
-      sizes:    sizesArr.length ? sizesArr : [40,41,42],
-      images: finalImages,              // array of up to 3 Base64/URL images
-      img:    finalImages[0],           // keep backward-compat primary
-      img2:   finalImages[1] || finalImages[0],
-      desc:   form.elements['desc'].value.trim(),
-      bestSeller: !!(form.querySelector('[name="bestSeller"]') && form.querySelector('[name="bestSeller"]').checked),
-      colors: colors.length ? colors : ['#1A1A1D'],
-      rating: 4.5, reviews: 0, sold: 0,
-      /* Store full ISO timestamp (not just date) so sort by newest is
-         always accurate even when multiple products are added the same day */
-      date:   new Date().toISOString()
+      price:       parseInt(form.elements['price'].value),
+      discount:    parseInt(form.elements['discount'].value) || 0,
+      stock:       parseInt(form.elements['stock'].value),
+      sizes:       sizesArr.length ? sizesArr : [40,41,42],
+      images:      finalImages,
+      img:         finalImages[0],
+      img2:        finalImages[1] || finalImages[0],
+      desc:        form.elements['desc'].value.trim(),
+      bestSeller:  !!(form.querySelector('[name="bestSeller"]') && form.querySelector('[name="bestSeller"]').checked),
+      colors:      colors.length ? colors : ['#1A1A1D']
     };
 
     if(this.editingId){
       const idx = products.findIndex(p => p.id === this.editingId);
-      products[idx] = { ...products[idx], ...data };
-      StepHaven.showToast('Produk berhasil diperbarui', 'success');
+      /* Spread existing product first, then overwrite with new form values.
+         Critically, rating/reviews/sold/date are NOT in sharedData,
+         so existing values are preserved on edit. */
+      products[idx] = { ...products[idx], ...sharedData };
     } else {
-      const newId = 'SH-' + (1000 + products.length + Math.floor(Math.random()*900));
-      products.push({ id: newId, ...data });
-      StepHaven.showToast('Produk baru berhasil ditambahkan', 'success');
+      /* New product — set defaults for fields not in the form */
+      const newId = 'SH-' + Date.now() + '-' + Math.floor(Math.random()*1000);
+      products.push({
+        id:      newId,
+        ...sharedData,
+        rating:  0,     /* starts at 0 until reviews come in */
+        reviews: 0,
+        sold:    0,
+        date:    new Date().toISOString()
+      });
     }
 
-    StepHaven.saveProducts(products);
+    /* ── Wait for IndexedDB to confirm write before proceeding ── */
+    try {
+      await StepHaven.saveProducts(products);
+    } catch(err) {
+      console.error('[Inventory] Failed to save to IndexedDB:', err);
+      StepHaven.showToast('Gagal menyimpan produk. Coba lagi.', 'danger');
+      return;
+    }
+
+    /* Only show toast + close modal + re-render AFTER IDB confirms */
+    const msg = this.editingId ? 'Produk berhasil diperbarui' : 'Produk baru berhasil ditambahkan';
+    StepHaven.showToast(msg, 'success');
     form.classList.remove('was-validated');
     bootstrap.Modal.getInstance(document.getElementById('productModal')).hide();
     this.render();
     this.renderSummary();
   },
 
-  deleteProduct(productId){
+  async deleteProduct(productId){
     if(!confirm('Hapus produk ini dari inventory?')) return;
-    let products = StepHaven.getProducts().filter(p => p.id !== productId);
-    StepHaven.saveProducts(products);
+    const products = StepHaven.getProducts().filter(p => p.id !== productId);
+    try {
+      await StepHaven.saveProducts(products);
+    } catch(err) {
+      StepHaven.showToast('Gagal menghapus produk. Coba lagi.', 'danger');
+      return;
+    }
     StepHaven.showToast('Produk dihapus', 'info');
     this.render();
     this.renderSummary();
   }
 };
 
-document.addEventListener('DOMContentLoaded', () => StepHaven.Inventory.init());
+document.addEventListener('stephavenReady', () => StepHaven.Inventory.init());

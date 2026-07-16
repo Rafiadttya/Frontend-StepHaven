@@ -69,16 +69,27 @@ const StepHavenDB = {
   },
 
   /* ──────────────────────────────────────────────────────
-     IDB WRITE: replace entire products store
+     IDB WRITE: replace entire products store.
+     Waits for clear() to succeed before putting records,
+     then resolves only after tx.oncomplete confirming
+     that all data is durably committed.
   ────────────────────────────────────────────────────── */
   _putAll(products){
     return this._open().then(db => new Promise((resolve, reject) => {
       const tx    = db.transaction(this.STORE, 'readwrite');
       const store = tx.objectStore(this.STORE);
-      store.clear();
-      products.forEach(p => store.put(p));
+
       tx.oncomplete = () => resolve();
       tx.onerror    = () => reject(tx.error);
+      tx.onabort    = () => reject(tx.error || new Error('IDB tx aborted'));
+
+      /* Wait for clear to finish before inserting records */
+      const clearReq = store.clear();
+      clearReq.onsuccess = () => {
+        if(products.length === 0) return;
+        products.forEach(p => { store.put(p); });
+      };
+      clearReq.onerror = () => { reject(clearReq.error); tx.abort(); };
     }));
   },
 
@@ -90,15 +101,26 @@ const StepHavenDB = {
   },
 
   /* ──────────────────────────────────────────────────────
-     PUBLIC: update cache immediately + persist to IDB
-     Called by StepHaven.saveProducts()
+     PUBLIC: fire-and-forget (used internally by init)
   ────────────────────────────────────────────────────── */
   persist(products){
     this._cache = products;
-    /* Fire-and-forget — never blocks UI */
     this._putAll(products).catch(err =>
       console.warn('[StepHavenDB] persist error:', err)
     );
+  },
+
+  /* ──────────────────────────────────────────────────────
+     PUBLIC: awaitable save — MUST be used by all writes
+     that need guaranteed persistence (Inventory CRUD,
+     stock deduction, rating updates).
+     Updates cache synchronously, then waits for IDB to
+     confirm the transaction is fully committed before
+     returning. Callers should await this.
+  ────────────────────────────────────────────────────── */
+  persistAsync(products){
+    this._cache = products;          /* immediate cache update */
+    return this._putAll(products);   /* awaitable IDB write   */
   },
 
   /* ──────────────────────────────────────────────────────

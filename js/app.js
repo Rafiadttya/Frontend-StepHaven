@@ -47,19 +47,18 @@ const StepHaven = {
   ────────────────────────────────────────────────────── */
   getProducts(){
     /* Return from in-memory cache loaded by StepHavenDB.init().
-       Falls back to seed only if init() wasn't awaited (edge case). */
-    const cached = StepHavenDB.getCached();
-    if(cached.length > 0) return cached;
-
-    /* Fallback: seed and persist (should rarely run) */
-    const seed = this.seedProducts();
-    StepHavenDB.persist(seed);
-    return seed;
+       IMPORTANT: this is a READ-ONLY accessor. It must never trigger a
+       write to IndexedDB as a side effect — a premature call (e.g. before
+       StepHavenDB.init() has resolved) simply sees an empty cache and
+       returns []; it must NOT persist that empty array, or it would
+       permanently wipe any real data already stored in IndexedDB. */
+    return StepHavenDB.getCached();
   },
 
   saveProducts(products){
-    /* Update cache immediately (sync) + queue IDB write (async) */
-    StepHavenDB.persist(products);
+    /* Returns a Promise that resolves only after IndexedDB
+       confirms the write. Callers should await this. */
+    return StepHavenDB.persistAsync(products);
   },
 
   getProductById(id){
@@ -453,10 +452,9 @@ const StepHaven = {
             <div class="text-muted" style="font-size:0.75rem;">${user.email || ''}</div>
           </li>
           <li><a class="dropdown-item" href="profile.html"><i class="bi bi-person me-2"></i>Profil Saya</a></li>
-          <li><a class="dropdown-item" href="wishlist.html"><i class="bi bi-heart me-2"></i>Wishlist</a></li>
-          <li><a class="dropdown-item" href="cart.html"><i class="bi bi-bag me-2"></i>Keranjang</a></li>
+  
           ${user.role === 'admin'
-            ? '<li><a class="dropdown-item" href="inventory.html"><i class="bi bi-speedometer2 me-2"></i>Admin Panel</a></li>'
+            ? '<li><a class="dropdown-item" href="inventory.html">'
             : ''}
           <li><hr class="dropdown-divider my-1"></li>
           <li><a class="dropdown-item text-danger btn-logout-nav" href="#"><i class="bi bi-box-arrow-right me-2"></i>Logout</a></li>`;
@@ -530,10 +528,13 @@ document.addEventListener('DOMContentLoaded', async () => {
   try {
     await StepHavenDB.init(StepHaven);
   } catch(err) {
-    /* If IndexedDB unavailable (private browsing on some browsers),
-       fall back to seed data in-memory so the site still works. */
     console.warn('[StepHavenDB] IndexedDB unavailable, using seed data:', err);
     StepHavenDB._cache = StepHaven.seedProducts();
   }
   StepHaven.init();
+  /* Signal that IDB cache is loaded and StepHaven is ready.
+     products.js, inventory.js, wishlist.js listen for THIS event
+     instead of DOMContentLoaded so they never run before the cache
+     is populated. This is the single source of truth for "ready". */
+  document.dispatchEvent(new CustomEvent('stephavenReady'));
 });

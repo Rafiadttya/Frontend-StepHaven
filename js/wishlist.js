@@ -88,4 +88,4 @@ StepHaven.Wishlist = {
   }
 };
 
-document.addEventListener('DOMContentLoaded', () => StepHaven.Wishlist.init());
+document.addEventListener('stephavenReady', () => StepHaven.Wishlist.init());

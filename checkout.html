@@ -279,7 +279,7 @@
    Checkout page logic (inline — page-specific, not reused
    elsewhere so it isn't placed in a shared js/ file).
    ========================================================= */
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('stephavenReady', () => {
   const cart = StepHaven.getCart();
   const listEl = document.getElementById('checkoutItemsList');
 
@@ -343,7 +343,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  form.addEventListener('submit', (e) => {
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
     e.stopPropagation();
     if(!form.checkValidity()){
@@ -364,7 +364,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }else{
       paymentDetail = 'Bayar di Tempat (COD)';
     }
-    
+
     const invNumber = 'INV-' + Date.now().toString().slice(-8);
 
     // Build order items array with full product details for profile history
@@ -395,8 +395,8 @@ document.addEventListener('DOMContentLoaded', () => {
       items:        orderItems
     });
 
-    // ── Deduct stock for each purchased product ──
-    StepHaven.Orders.deductStock(orderItems.map(i => ({ id: i.id, qty: i.qty })));
+    // ── Deduct stock and await IDB confirmation ──
+    await StepHaven.Orders.deductStock(orderItems.map(i => ({ id: i.id, qty: i.qty })));
 
     // ── Populate invoice view ──
     document.getElementById('invNumber').textContent  = invNumber;
@@ -420,4 +420,3 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 </body>
 </html>
-
