@@ -1,24 +1,23 @@
 /* =========================================================
    STEPHAVEN — app.js
-   Shared logic used across every page:
-   - LocalStorage data store (products, cart, wishlist, user, theme)
-   - Navbar sticky / offcanvas behaviour
-   - Dark mode toggle
-   - Toast notification system
-   - Scroll-to-top button
-   - Cart badge counter
-   - Newsletter form
+   Logika bersama yang digunakan di setiap halaman:
+   - Penyimpanan data LocalStorage (produk, keranjang, wishlist, pengguna, tema)
+   - Perilaku navbar sticky / offcanvas
+   - Sistem notifikasi toast
+   - Tombol gulir ke atas (scroll-to-top)
+   - Penghitung badge keranjang
+   - Formulir newsletter
    ========================================================= */
 
 /* ---------------------------------------------------------
    NAMESPACE
-   Everything lives under window.StepHaven so pages can share
-   functions without polluting the global scope too much.
+   Segala sesuatu berada di bawah window.StepHaven agar halaman-halaman
+   dapat berbagi fungsi tanpa terlalu mengotori lingkup global.
 --------------------------------------------------------- */
 const StepHaven = {
 
-  /* Increment DATA_VERSION whenever seed data changes significantly
-     so returning visitors automatically get the fresh data. */
+/* Tingkatkan DATA_VERSION setiap kali data awal (seed data) berubah secara signifikan
+     agar pengunjung yang kembali secara otomatis mendapatkan data terbaru. */
   DATA_VERSION: '5',
 
   KEYS: {
@@ -26,38 +25,33 @@ const StepHaven = {
     WISHLIST: 'sh_wishlist',
     USER:     'sh_user',
     RECENT:   'sh_recent_viewed',
-    DATA_VER: 'sh_data_version'   /* still used by db.js — keep key name */
+    DATA_VER: 'sh_data_version' 
   },
 
   /* -------------------- SEED DATA -------------------- */
-  // Used only the first time the site runs (localStorage empty).
+
   seedProducts(){
-    /* Intentionally empty — no auto-seeded products.
-       All products must be added manually via the Inventory page.
-       Returning [] tells db.js to leave IndexedDB empty on first run. */
+/* Sengaja dikosongkan — tidak ada produk yang dimasukkan secara otomatis.
+       Semua produk harus ditambahkan secara manual melalui halaman Inventaris.
+       Mengembalikan [] menginstruksikan db.js untuk membiarkan IndexedDB tetap kosong saat pertama kali dijalankan. */
     return [];
   },
 
-  /* -------------------- STORAGE HELPERS -------------------- */
+/* -------------------- FUNGSI BANTU PENYIMPANAN -------------------- */
   /* ──────────────────────────────────────────────────────
-     PRODUCT STORAGE — IndexedDB (via StepHavenDB cache)
-     getProducts()  → synchronous read from in-memory cache
-     saveProducts() → sync cache update + async IDB persist
-     getProductById() → unchanged (calls getProducts())
+     PENYIMPANAN PRODUK — IndexedDB (melalui cache StepHavenDB)
+     getProducts()  = pembacaan sinkron dari cache in-memory
+     saveProducts() = pembaruan cache secara sinkron + persistensi IDB secara asinkron
+     getProductById() = tidak berubah (memanggil getProducts())
   ────────────────────────────────────────────────────── */
   getProducts(){
-    /* Return from in-memory cache loaded by StepHavenDB.init().
-       IMPORTANT: this is a READ-ONLY accessor. It must never trigger a
-       write to IndexedDB as a side effect — a premature call (e.g. before
-       StepHavenDB.init() has resolved) simply sees an empty cache and
-       returns []; it must NOT persist that empty array, or it would
-       permanently wipe any real data already stored in IndexedDB. */
+
     return StepHavenDB.getCached();
   },
 
   saveProducts(products){
-    /* Returns a Promise that resolves only after IndexedDB
-       confirms the write. Callers should await this. */
+/* Mengembalikan Promise yang selesai (resolve) hanya setelah IndexedDB
+       mengonfirmasi operasi tulis. */
     return StepHavenDB.persistAsync(products);
   },
 
@@ -137,31 +131,30 @@ const StepHaven = {
     });
   },
 
-  /* ================================================================
-     UI: NAVBAR SEARCH BAR — v2
-     ----------------------------------------------------------------
-     Behaviour:
-     - HOME / any page with #navSearchInput:
-         • Searches ALL products in localStorage (not just visible cards)
-         • Shows dropdown suggestion (thumbnail + name + price) realtime
-         • Enter or click → redirect to products.html?q=keyword
-         • Dropdown closes on outside click or Escape
-     - SHOP (products.html):
-         • On load, reads ?q= from URL → pre-fills both navbar + sidebar
-           inputs and fires the existing Shop filter
-         • Typing in navbar input syncs → sidebar #searchInput → filter runs
-         • Typing in sidebar syncs back → navbar input
-     ================================================================ */
+    /* ================================================================
+      UI: NAVBAR SEARCH BAR — 
+      ----------------------------------------------------------------
+Perilaku:
+      - Beranda / halaman mana pun dengan #navSearchInput:
+          • Mencari di SELURUH produk dalam localStorage (bukan hanya kartu yang terlihat)
+          • Menampilkan saran via dropdown (gambar kecil + nama + harga) secara real-time
+          • Tekan Enter atau klik = mengalihkan ke products.html?q=kata_kunci
+          • Dropdown tertutup saat diklik di luar area atau menekan tombol Escape
+      - Toko (products.html):
+          • Saat dimuat, membaca parameter ?q= dari URL = mengisi otomatis input di
+            navbar maupun sidebar, lalu menjalankan filter Toko yang sudah ada
+          • Mengetik di input navbar akan menyinkronkan = #searchInput sidebar = filter dijalankan
+          • Mengetik di sidebar akan menyinkronkan balik = input navbar
+      ================================================================ */
   initNavbarSearch(){
     const navInput   = document.getElementById('navSearchInput');
     const dropdown   = document.getElementById('navSearchDropdown');
-    if(!navInput) return;  // page has no search bar
+    if(!navInput) return;  // halaman tidak memiliki kolom pencarian
 
     const page = (location.pathname.split('/').pop() || 'index.html');
 
     /* ─────────────────────────────────────────────────────────────
-       SHOP PAGE — sync with existing sidebar #searchInput
-       and auto-apply keyword from URL query string
+        SHOP PAGE —
     ───────────────────────────────────────────────────────────── */
     if(page === 'products.html'){
       const shopInput = document.getElementById('searchInput');
@@ -402,18 +395,18 @@ const StepHaven = {
 
   /* -------------------- UI: SESSION / NAVBAR STATE -------------------- */
   /*
-   * updateNavbar()
-   * Reads sh_user from localStorage on every page load.
+* updateNavbar()
+   * Membaca sh_user dari localStorage setiap kali halaman dimuat.
    *
-   * Logged IN  → hide .nav-login-btn
-   *            → convert existing .nav-profile-btn into a Bootstrap dropdown
-   *              (the icon itself becomes the toggle; a menu is injected
-   *               right after it — NO new elements are added to the layout)
-   *            → show "Admin Panel" link only when role === 'admin'
+   * Status Masuk (Logged IN) = sembunyikan .nav-login-btn
+   *                           ubah .nav-profile-btn yang ada menjadi dropdown Bootstrap
+   *                            (ikonnya sendiri berfungsi sebagai tombol pemicu/toggle; menu disisipkan
+   *                             tepat setelahnya — TIDAK ada elemen baru yang ditambahkan ke tata letak)
+   *                       
    *
-   * Logged OUT → show .nav-login-btn (href=login.html)
-   *            → keep .nav-profile-btn as a plain link to login.html
-   *            → remove any previously injected dropdown menu
+   * Status Keluar (Logged OUT) → tampilkan .nav-login-btn (href=login.html)
+   *                            .nav-profile-btn sebagai tautan biasa menuju login.html
+   *                            hapus menu dropdown yang sebelumnya disisipkan
    */
   updateNavbar(){
     const userRaw = localStorage.getItem(this.KEYS.USER);
@@ -499,8 +492,8 @@ const StepHaven = {
     /* Note: StepHavenDB.init(this) is called BEFORE this method,
        so the product cache is already populated. */
     this.initNavbar();
-    this.initNavbarSearch();     // navbar search bar (Home + Shop only)
-    this.updateNavbar(); // ← reads session, adjusts login/profile on every page
+    this.initNavbarSearch();     
+    this.updateNavbar(); 
     this.initScrollTop();
     this.initNewsletter();
     this.updateCartBadge();
@@ -518,11 +511,11 @@ const StepHaven = {
 };
 
 /* ─────────────────────────────────────────────────────────
-   BOOTSTRAP
-   1. Wait for DOM.
-   2. Init IndexedDB and load product cache (async).
-   3. Then run StepHaven.init() synchronously as before.
-   This ensures StepHaven.getProducts() always returns data.
+BOOTSTRAP
+    1. Tunggu DOM.
+    2. Inisialisasi IndexedDB dan muat cache produk (secara asinkron).
+    3. Kemudian dijalankan StepHaven.init() secara sinkron seperti sebelumnya.
+    memastikan StepHaven.getProducts() selalu mengembalikan data.
 ───────────────────────────────────────────────────────── */
 document.addEventListener('DOMContentLoaded', async () => {
   try {
@@ -532,9 +525,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     StepHavenDB._cache = StepHaven.seedProducts();
   }
   StepHaven.init();
-  /* Signal that IDB cache is loaded and StepHaven is ready.
-     products.js, inventory.js, wishlist.js listen for THIS event
-     instead of DOMContentLoaded so they never run before the cache
-     is populated. This is the single source of truth for "ready". */
+  /* Menandakan bahwa cache IDB telah dimuat dan StepHaven siap.
+      products.js, inventory.js, dan wishlist.js memantau peristiwa INI
+      alih-alih DOMContentLoaded, sehingga skrip-skrip tersebut tidak akan berjalan
+      sebelum cache terisi. Ini adalah satu-satunya sumber acuan untuk status "siap". */
   document.dispatchEvent(new CustomEvent('stephavenReady'));
 });
