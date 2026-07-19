@@ -1,12 +1,12 @@
 /* =========================================================
-   STEPHAVEN — inventory.js
-   Admin inventory dashboard:
-   - Summary cards
-   - Table with search + category filter (now shows color badges)
-   - Add / Edit / Delete product
-   - Supports up to 3 product images (img1/img2/img3)
-   - Color picker: preset colors + custom color via <input type="color">
-   - All data backed by localStorage
+    STEPHAVEN — inventory.js
+  Dasbor inventaris admin:
+    - Kartu ringkasan
+    - Tabel dengan fitur pencarian & filter kategori (kini menampilkan badge warna)
+    - Tambah / Ubah / Hapus produk
+    - Mendukung hingga 3 gambar produk (img1/img2/img3)
+    - Pemilih warna: warna preset + warna kustom melalui <input type="color">
+    - Seluruh data disimpan menggunakan localStorage
    ========================================================= */
 
 StepHaven.Inventory = {

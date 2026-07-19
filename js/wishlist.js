@@ -1,10 +1,10 @@
 /* =========================================================
    STEPHAVEN — wishlist.js
-   Handles the Wishlist page:
-   - Render every product saved in localStorage wishlist
-   - "Pindahkan ke keranjang" -> add to cart + remove from wishlist
-   - "Hapus dari wishlist" -> remove single item
-   - Empty state when wishlist has no items
+Menangani halaman Wishlist:
+    - Menampilkan setiap produk yang tersimpan di wishlist (localStorage)
+    - "Pindahkan ke keranjang" -> tambahkan ke keranjang + hapus dari wishlist
+    - "Hapus dari wishlist" -> hapus satu item
+    - Tampilan saat wishlist kosong (tidak ada item)
    ========================================================= */
 
 StepHaven.Wishlist = {

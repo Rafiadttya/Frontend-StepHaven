@@ -1,11 +1,11 @@
 /* =========================================================
-   STEPHAVEN — orders.js
-   =========================================================
-   STATUS FLOW (4 stages, Tiba = pesanan diterima):
-     0 Pembayaran Berhasil → after  20 s → 1
-     1 Dikemas             → after  50 s → 2
-     2 Dikirim             → after 120 s → 3
-     3 Tiba                (final active — moves to Riwayat, unlock review)
+    STEPHAVEN — orders.js
+    =========================================================
+  STATUS FLOW (4 tahap, Tiba = pesanan diterima):
+      0 Pembayaran Berhasil → setelah 20 detik → 1
+      1 Dikemas → setelah 50 detik → 2
+      2 Dikirim → setelah 120 detik → 3
+      3 Tiba (akhir aktif — berpindah ke Riwayat, membuka ulasan)
    ========================================================= */
 
 StepHaven.Orders = {
@@ -58,9 +58,9 @@ StepHaven.Orders = {
   },
 
   /* =========================================================
-     STATUS SIMULATION
-     On every page load, call advanceAllStatuses() to catch up
-     any orders whose time threshold has passed.
+      SIMULASI STATUS
+      Pada setiap pemuatan halaman, panggil `advanceAllStatuses()` untuk memproses
+      pesanan yang ambang batas waktunya telah terlampaui.
   ========================================================= */
   advanceAllStatuses(){
     const orders  = this.getOrders();

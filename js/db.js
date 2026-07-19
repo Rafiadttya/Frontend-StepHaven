@@ -1,24 +1,24 @@
 /* =========================================================
-   STEPHAVEN — db.js
-   IndexedDB wrapper for product storage.
+    STEPHAVEN — db.js
+  Wrapper IndexedDB untuk penyimpanan produk.
 
-   STRATEGY: In-memory cache + async IndexedDB persistence.
-   ─────────────────────────────────────────────────────────
-   - All reads  (getProducts, getProductById) stay synchronous
-     via the in-memory cache array.
-   - All writes (saveProducts) update the cache immediately,
-     then persist to IndexedDB asynchronously (fire-and-forget).
-   - This means ZERO changes needed to inventory.js, products.js,
-     orders.js, cart.js, wishlist.js — they all call
-     StepHaven.getProducts() / saveProducts() exactly as before.
+    STRATEGI: Cache in-memory + persistensi IndexedDB asinkron.
+    ─────────────────────────────────────────────────────────
+    - Semua operasi baca (getProducts, getProductById) tetap sinkron
+      melalui array cache in-memory.
+    - Semua operasi tulis (saveProducts) memperbarui cache secara langsung,
+      lalu melakukan persistensi ke IndexedDB secara asinkron (fire-and-forget).
+    - Ini TIDAK ADA perubahan yang diperlukan pada inventory.js, products.js,
+      orders.js, cart.js, wishlist.js — semuanya memanggil
+      StepHaven.getProducts() / saveProducts() persis seperti sebelumnya.
 
-   INITIALIZATION (async, called once at page load):
-     await StepHavenDB.init(StepHaven)
-   ─────────────────────────────────────────────────────────
-   IndexedDB is used ONLY for the products object store.
-   Everything else (cart, wishlist, user, orders, reviews)
-   remains in localStorage as-is — those are small key/value
-   pairs that never hit the quota limit.
+    INISIALISASI (asinkron, dipanggil sekali saat pemuatan halaman):
+      await StepHavenDB.init(StepHaven)
+    ─────────────────────────────────────────────────────────
+    IndexedDB HANYA digunakan untuk object store produk.
+    Data lainnya (keranjang, wishlist, pengguna, pesanan, ulasan)
+    tetap berada di localStorage sebagaimana adanya — data tersebut
+    berupa pasangan key/value kecil yang tidak akan pernah mencapai batas kuota.
    ========================================================= */
 
 const StepHavenDB = {
@@ -69,10 +69,10 @@ const StepHavenDB = {
   },
 
   /* ──────────────────────────────────────────────────────
-     IDB WRITE: replace entire products store.
-     Waits for clear() to succeed before putting records,
-     then resolves only after tx.oncomplete confirming
-     that all data is durably committed.
+        IDB WRITE: mengganti keseluruhan penyimpanan produk.
+        Menunggu keberhasilan `clear()` sebelum memasukkan data,
+        lalu menyelesaikan operasi hanya setelah `tx.oncomplete` mengonfirmasi
+        bahwa seluruh data telah tersimpan secara permanen.
   ────────────────────────────────────────────────────── */
   _putAll(products){
     return this._open().then(db => new Promise((resolve, reject) => {
@@ -111,12 +111,12 @@ const StepHavenDB = {
   },
 
   /* ──────────────────────────────────────────────────────
-     PUBLIC: awaitable save — MUST be used by all writes
-     that need guaranteed persistence (Inventory CRUD,
-     stock deduction, rating updates).
-     Updates cache synchronously, then waits for IDB to
-     confirm the transaction is fully committed before
-     returning. Callers should await this.
+PUBLIK: `save` yang dapat ditunggu (*awaitable*) — WAJIB digunakan untuk semua operasi penulisan
+      yang memerlukan jaminan persistensi (CRUD Inventaris,
+      pengurangan stok, pembaruan peringkat).
+      Memperbarui *cache* secara sinkron, lalu menunggu IDB
+      mengonfirmasi bahwa transaksi telah sepenuhnya di-*commit* sebelum
+      mengembalikan kendali. Pemanggil harus melakukan `await` pada operasi ini.
   ────────────────────────────────────────────────────── */
   persistAsync(products){
     this._cache = products;          /* immediate cache update */
@@ -125,14 +125,6 @@ const StepHavenDB = {
 
   /* ──────────────────────────────────────────────────────
      PUBLIC: init — called once before StepHaven.init()
-
-     Flow:
-     1. Open IndexedDB.
-     2. If data version changed → re-seed into IDB.
-     3. Else try to load from IDB.
-     4. If IDB is empty → migrate from localStorage (old data).
-     5. If still empty → seed fresh.
-     6. Populate in-memory cache.
   ────────────────────────────────────────────────────── */
   async init(app){
     await this._open();

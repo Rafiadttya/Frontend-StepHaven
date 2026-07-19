@@ -1,10 +1,10 @@
 /* =========================================================
-   STEPHAVEN — products.js
-   Handles:
-   - Product card template (reused on home, products, detail pages)
-   - Home page: new arrivals & popular product rails
-   - Products page: search, filter, sort, pagination
-   - Product detail page: gallery, sizes/colors, related items
+    STEPHAVEN — products.js
+  Menangani:
+    - Templat kartu produk (digunakan kembali di halaman beranda, produk, dan detail)
+    - Halaman beranda: deretan produk baru & produk populer
+    - Halaman produk: pencarian, filter, pengurutan, paginasi
+    - Halaman detail produk: galeri, ukuran/warna, produk terkait
    ========================================================= */
 
 StepHaven.Products = {

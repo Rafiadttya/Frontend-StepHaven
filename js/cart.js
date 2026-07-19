@@ -1,10 +1,10 @@
 /* =========================================================
-   STEPHAVEN — cart.js
-   Handles the shopping cart page:
-   - Render cart items from localStorage
-   - Update quantity / remove item
-   - Calculate subtotal, tax, shipping, total
-   - Promo code field
+    STEPHAVEN — cart.js
+  Menangani halaman keranjang belanja:
+    - Menampilkan item keranjang dari localStorage
+    - Memperbarui jumlah / menghapus item
+    - Menghitung subtotal, pajak, biaya pengiriman, dan total
+    - Kolom kode promo
    ========================================================= */
 
 StepHaven.Cart = {
@@ -76,7 +76,7 @@ StepHaven.Cart = {
       </div>`;
     }).join('');
 
-    // Bind quantity & remove
+    // Kaitkan kuantitas & hapus
     wrap.querySelectorAll('[data-increase]').forEach(btn => {
       btn.addEventListener('click', () => this.changeQty(parseInt(btn.dataset.increase), 1));
     });
@@ -131,8 +131,7 @@ StepHaven.Cart = {
         discountRow.classList.add('d-none');
       }
     }
-
-    // Persist total for checkout page to read
+// Menyimpan nilai total agar dapat dibaca oleh halaman checkout
     sessionStorage.setItem('sh_checkout_total', total);
   }
 };
