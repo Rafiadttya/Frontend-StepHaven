@@ -193,10 +193,12 @@
 <script src="js/orders.js"></script>
 <script src="js/products.js"></script>
 <script>
+
 /* =========================================================
-   detail.html — Render real reviews + live sold/rating stats
-   Runs AFTER products.js initDetailPage() has set product info.
+    detail.html — Menampilkan ulasan asli + statistik penjualan/peringkat terkini
+    Dijalankan setelah `initDetailPage()` dari `products.js` menetapkan informasi produk.
 ========================================================= */
+
 document.addEventListener('stephavenReady', () => {
   const params    = new URLSearchParams(location.search);
   const productId = params.get('id');
