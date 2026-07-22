@@ -193,7 +193,7 @@ Perilaku:
     }
 
     /* ─────────────────────────────────────────────────────────────
-       ALL OTHER PAGES (incl. HOME) — full suggestion dropdown
+        ALL OTHER PAGES (incl. HOME) — full suggestion dropdown
     ───────────────────────────────────────────────────────────── */
     if(!dropdown) return;
 
